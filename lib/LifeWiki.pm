@@ -85,6 +85,16 @@ sub error {
     return undef;
 }
 
+sub clearCaches {
+    # clear security caches per request
+    %LifeWiki::CACHE_NMID_READSEC = ();
+    %LifeWiki::CACHE_NMID_WRITESEC = ();
+
+    # cached page objects
+    %LifeWiki::CACHE_PAGE = (); # ( "nmid:pagename" => LifeWiki::Page )
+    %LifeWiki::CACHE_PAGE_NOTFOUND = (); # same => 1
+}
+
 # add a hook to the system that other people can call and use
 sub addHook {
     my $name = shift;

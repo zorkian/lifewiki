@@ -30,7 +30,9 @@ sub _canEditNamespace {
     return undef unless $dbh;
 
     # allow public writes?
-    my $writelevel = $dbh->selectrow_array('SELECT writesec FROM namespace WHERE nmid = ?', undef, $nmid);
+    my $writelevel =
+        $LifeWiki::CACHE_NMID_WRITESEC{$nmid} ||=
+            $dbh->selectrow_array('SELECT writesec FROM namespace WHERE nmid = ?', undef, $nmid);
     return 1 if $writelevel eq 'public';
 
     # nope, do you have access anyway?
@@ -46,7 +48,9 @@ sub _canReadNamespace {
     return undef unless $dbh;
 
     # allow public writes?
-    my $readlevel = $dbh->selectrow_array('SELECT readsec FROM namespace WHERE nmid = ?', undef, $nmid);
+    my $readlevel =
+        $LifeWiki::CACHE_NMID_READSEC{$nmid} ||=
+            $dbh->selectrow_array('SELECT readsec FROM namespace WHERE nmid = ?', undef, $nmid);
     return 1 if $readlevel eq 'public';
 
     # do you have access anyway?
@@ -96,6 +100,14 @@ sub new {
     # make sure this user can read the namespace
     return undef unless _canReadNamespace($remote, $nmid);
 
+    # see if we can't return a cached page?
+    return $LifeWiki::CACHE_PAGE{"$nmid:$page"}
+        if $LifeWiki::CACHE_PAGE{"$nmid:$page"};
+
+    # return undef if we've cached it doesn't exist
+    return undef
+        if $LifeWiki::CACHE_PAGE_NOTFOUND{"$nmid:$page"};
+
     # get database for the load
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
@@ -127,7 +139,12 @@ sub new {
         # now return this page, but with vivify turned off
         return LifeWiki::Page->new($remote, $namespace . '/' . $page);
     }
-    return undef unless $pgid;
+
+    # if it doesn't exist, note that and return
+    unless ($pgid) {
+        $LifeWiki::CACHE_PAGE_NOTFOUND{"$nmid:$page"} = 1;
+        return undef;
+    }
 
     my $self = {
         _uri => $namespace . '/' . $page,
@@ -139,6 +156,9 @@ sub new {
         _revnum => $revnum,
     };
     bless $self, $class;
+
+    # cache it
+    $LifeWiki::CACHE_PAGE{"$nmid:$page"} = $self;
 
     return $self;
 }
@@ -157,14 +177,8 @@ sub newByPageId {
     return undef if $dbh->err;
 
     # get namespace information
-    my $namespace = $LifeWiki::CACHE_NAMESPACES{$nmid};
-    unless ($namespace) {
-        $namespace = $dbh->selectrow_array
-            ('SELECT name FROM namespace WHERE nmid = ?', undef, $nmid);
-        return undef if $dbh->err;
-
-        $LifeWiki::CACHE_NAMESPACES{$nmid} = $namespace;
-    }
+    my $namespace = LifeWiki::Namespace::getNamespaceName($nmid);
+    return undef unless $namespace;
 
     my $self = {
         _uri => $namespace . '/' . $name,

@@ -66,11 +66,16 @@ sub getNamespaceName {
     my $nmid = shift() + 0;
     return undef unless $nmid;
 
+    return $LifeWiki::CACHE_NAMESPACES{$nmid}
+        if $LifeWiki::CACHE_NAMESPACES{$nmid};
+
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
     my $name = $dbh->selectrow_array('SELECT name FROM namespace WHERE nmid = ?', undef, $nmid);
     return undef if $dbh->err;
+
+    $LifeWiki::CACHE_NAMESPACES{$nmid} = $name;
 
     return $name;
 }

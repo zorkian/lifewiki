@@ -77,10 +77,6 @@ DocumentRoot $LifeWiki::DOCROOT
     if ($LifeWiki::CUSTOM_THEME_DIR) {
         Apache->httpd_conf("Alias /theme $LifeWiki::CUSTOM_THEME_DIR");
     }
-
-    # setup a connection to our database
-    my ($db, $h, $un, $pw) = map { $LifeWiki::DBCONFIG{$_} } qw(database host username password);
-    $HTML::Mason::Commands::dbh = DBI->connect("DBI:mysql:$db:$h", $un, $pw);
 }
 
 # push onto the component root at the end
@@ -103,6 +99,10 @@ sub handler
 {
     my $r = shift;
 
+    # setup a connection to our database
+    my ($db, $h, $un, $pw) = map { $LifeWiki::DBCONFIG{$_} } qw(database host username password);
+    $HTML::Mason::Commands::dbh = DBI->connect("DBI:mysql:$db:$h", $un, $pw);
+
     # setup the user and such
     %HTML::Mason::Commands::opts = ();
     %HTML::Mason::Commands::cookies = Apache::Cookie->fetch;
@@ -114,6 +114,9 @@ sub handler
 
     # lifewiki engine setup
     LifeWiki::clearErrors();
+
+    # and now reset the caches
+    LifeWiki::clearCaches();
 
     # now run the request
     my $status = $ah->handle_request($r);

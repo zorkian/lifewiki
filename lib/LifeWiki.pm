@@ -4,6 +4,12 @@ package LifeWiki;
 
 use strict;
 
+# lists of hooks that are defined...
+#   ( hook_name => [ $runner, $runner, ... ] )
+# hooks must return undef meaning "I didn't handle this" or a defined value which
+# indicates they're actually returning something.
+our %Hooks = ();
+
 BEGIN {
     %LifeWiki::PRIVILEGE_TABLE = (
         create_namespaces => {
@@ -67,6 +73,59 @@ sub setAuthAgent {
     }
 
     return 1;
+}
+
+# add a hook to the system that other people can call and use
+sub addHook {
+    my $name = shift;
+    die "Attempt to add hook with no name\n" unless $name;
+
+    my $runner = shift;
+    die "Attempt to add hook '$name' without a runner\n" unless $runner;
+    die "Attempt to add hook '$name' with a runner other than a code ref\n"
+        unless ref $runner eq 'CODE';
+
+    # add this to our list at the end
+    push @{$Hooks{$name} ||= []}, $runner;
+}
+
+# removes all hooks for a given name
+sub clearHooks {
+    my $name = shift;
+    return undef unless $Hooks{$name} && @{$Hooks{$name}};
+    my $ct = scalar(@{$Hooks{$name}});
+    $Hooks{$name} = [];
+    return $ct;
+}
+
+# run hooks until one returns a defined value, then return that
+sub runHook {
+    my $name = shift;
+    return undef unless $Hooks{$name} && @{$Hooks{$name}};
+
+    foreach my $hook (@{$Hooks{$name}}) {
+        my $val = $hook->(@_);
+        return $val if defined $val;
+    }
+    return undef;
+}
+
+# run a bunch of hooks and assemble the defined return values into an arrayref
+sub runHooks {
+    my $name = shift;
+    return undef unless $Hooks{$name} && @{$Hooks{$name}};
+
+    my @ret;
+    foreach my $hook (@{$Hooks{$name}}) {
+        my $val = $hook->(@_);
+        push @ret, $val if defined $val;
+    }
+    return \@ret;
+}
+
+# get a pointer to the available hooks
+sub getHookRef {
+    return \%Hooks;
 }
 
 # shamelessly taken from LiveJournal.com source code

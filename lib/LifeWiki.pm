@@ -10,6 +10,9 @@ use strict;
 # indicates they're actually returning something.
 our %Hooks = ();
 
+# component roots that plugins can modify
+our @COMPROOT = ();
+
 BEGIN {
     %LifeWiki::PRIVILEGE_TABLE = (
         create_namespaces => {
@@ -141,6 +144,14 @@ sub ehtml {
     $a =~ s/</&lt;/g;
     $a =~ s/>/&gt;/g;
     return $a;
+}
+
+sub addComponentRoot {
+    my $root = shift;
+    $root = "$ENV{LIFEWIKIHOME}/$root";
+
+    die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
+    unshift @COMPROOT, [ scalar(@COMPROOT)+1 => $root ];
 }
 
 # also taken from LiveJournal

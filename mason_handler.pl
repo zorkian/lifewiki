@@ -33,6 +33,23 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
     $blosxom::version = 1; # hah
     require 'Markdown.pl';
 
+    # now that we have what we need, process plugins
+    foreach my $plugin (@LifeWiki::PLUGINS) {
+        my ($name, $opts);
+        if (ref $plugin) {
+            ($name, $opts) = @$plugin;
+        } else {
+            $name = $plugin;
+        }
+
+        my $path = "$ENV{LIFEWIKIHOME}/plugins/$name";
+        die "Plugin directory $path does not exist or is not a directory\n" unless -d $path;
+
+        eval "require '$path/plugin.pl';";
+        my $rv = eval "return LifeWiki::Plugin::${name}::init(\$opts);";
+        die "Plugin $name failed to return 1 ($rv) from init()\n" unless $rv;
+    }
+
     # now setup the authentication agent we want
     LifeWiki::setAuthAgent("LDAP", {
         server => 'ldap.sixapart.com',
@@ -46,9 +63,12 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
     $HTML::Mason::Commands::dbh = DBI->connect("DBI:mysql:$db:$h", $un, $pw);
 }
 
+# push onto the component root at the end
+push @LifeWiki::COMPROOT, [ base => "$ENV{LIFEWIKIHOME}/htdocs" ];
+
 # Create Mason object.
 my $ah = HTML::Mason::ApacheHandler->new(
-    comp_root           => "$ENV{LIFEWIKIHOME}/htdocs",
+    comp_root           => \@LifeWiki::COMPROOT,
     data_dir            => "$ENV{LIFEWIKIHOME}/mason",
     autohandler_name    => 'autohandler',
     dhandler_name       => 'dhandler',

@@ -64,20 +64,6 @@ sub getDatabase {
     return $HTML::Mason::Commands::dbh;
 }
 
-sub setAuthAgent {
-    my $auth = shift();
-    my $args = shift();
-
-    eval "use LifeWiki::Auth::$auth;";
-    eval "LifeWiki::Auth::${auth}::enable(\$args);";
-    if ($@) {
-        $@ = "Error: $auth module unable to load\n";
-        return undef;
-    }
-
-    return 1;
-}
-
 # add a hook to the system that other people can call and use
 sub addHook {
     my $name = shift;

@@ -68,26 +68,10 @@
 <!-- END navigation -->
 
 <div id="content_pane">
-<!-- BEGIN display_content.html -->
-
-
-
-<div id="bread">
-<ul>
-
-</ul>
-
-</div>
-
-
 
   <div id="title_pane">
     <h1><% $title %></h1>
   </div>
-
-
-
-  <!-- BEGIN display_content -->
 
 <div class="wiki">
 <% $content %>

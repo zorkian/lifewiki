@@ -4,6 +4,23 @@
 	padding-left: 15px;
 }
 
+.error_bar {
+    background-color: rgb(255,220,220);
+    border: solid 1px black;
+    padding: 10px;
+    margin: 20px;
+}
+
+.error_bar p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.error_bar ul {
+    padding: 0px;
+    margin: 5px 0px 0px 10px;
+}
+
 /* Nav - left column */
 #navigation {
 	float: left;

@@ -5,15 +5,9 @@
         return;
     }
 
-    # require a post for this
-    if ($did_post) {
-        my $data = LifeWiki::Auth::tryVerify($r);
-        unless (defined $data) {
-            # if it falls through, something failed
-            print "<p>Error: invalid username or password.</p>";
-            print "<p>$@</p>" if $@;
-            return;
-        }
+    my $verify = sub {
+        my $data = LifeWiki::Plugin::LDAPAuth::tryVerify($r);
+        return unless $data;
 
         my $u = LifeWiki::User->newFromUser($data->{name});
         unless (defined $u) {
@@ -23,10 +17,8 @@
                 nickname => $data->{nick},
                 email => $data->{email},
             );
-            unless (defined $u) {
-                print "<p>Error: unable to access your account.  Please try again later.</p>";
-                return;
-            }
+            return LifeWiki::error("unable to access your account; please try again later.")
+                unless defined $u;
         }
 
         # must be good
@@ -43,9 +35,18 @@
         $remote = $u;
 
         print "<p>You have been successfully logged in.</p>";
-        return;
-    }
+        return 1;
+    };
+
+    # if we posted, return if verify returns true, which means it handled
+    # the appropriate user response
+    return if
+        $did_post && $verify->();
 </%perl>
+
+<p>Please fill out this form in order to login.</p>
+
+% LifeWiki::printErrors();
 
 <form method='post'>
 <table><tr><td>Username:</td><td><input type="text" name="username"></td></tr>

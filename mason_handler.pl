@@ -43,7 +43,7 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
 
         eval "require '$path/plugin.pl';";
         my $rv = eval "return LifeWiki::Plugin::${name}::init(\$opts);";
-        die "Plugin $name failed to return 1 ($rv) from init()\n" unless $rv;
+        die "Plugin $name failed to return 1 ($rv) from init(): $@\n" unless $rv;
     }
 
     # now setup the httpd.conf
@@ -51,6 +51,14 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
 # Basic configuration
 DirectoryIndex index index.html
 ServerName $LifeWiki::DOMAIN
+DocumentRoot $LifeWiki::DOCROOT
+
+# Handle everything default
+<Location />
+    DefaultType text/html
+    SetHandler perl-script
+    PerlHandler LifeWiki::HTML
+</Location>
 
 # Serve regular files outside of the scope of Mason
 <LocationMatch "\.(css|js|png|jpg|jpeg|gif)">
@@ -63,32 +71,11 @@ ServerName $LifeWiki::DOMAIN
     SetHandler perl-script
     PerlInitHandler Apache::Constants::NOT_FOUND
 </LocationMatch>
-
-NameVirtualHost *
-
-<VirtualHost *>
-    ServerName $LifeWiki::DOMAIN
-    DocumentRoot $LifeWiki::DOCROOT
-    DefaultType text/html
-    SetHandler perl-script
-    PerlHandler LifeWiki::HTML
-</VirtualHost>
     });
 
     # and now, if we have a custom theme...
-    if ($LifeWiki::CUSTOM_THEME) {
-        Apache->httpd_conf(qq{
-<VirtualHost *>
-    ServerName $LifeWiki::THEMEDOMAIN
-    Options -Indexes
-    DocumentRoot $LifeWiki::CUSTOM_THEME
-    SetHandler default-handler
-</VirtualHost>
-        });
-    } else {
-        # fall back to default theme if the user didn't provide one
-        $LifeWiki::THEMEDOMAIN = $LifeWiki::DOMAIN;
-        $LifeWiki::THEMEROOT = "$LifeWiki::SITEROOT/theme";
+    if ($LifeWiki::CUSTOM_THEME_DIR) {
+        Apache->httpd_conf("Alias /theme $LifeWiki::CUSTOM_THEME_DIR");
     }
 
     # setup a connection to our database
@@ -124,6 +111,9 @@ sub handler
     $HTML::Mason::Commands::title = "boring lack of a title";
     $HTML::Mason::Commands::page = undef;
     $HTML::Mason::Commands::head = "";
+
+    # lifewiki engine setup
+    LifeWiki::clearErrors();
 
     # now run the request
     my $status = $ah->handle_request($r);

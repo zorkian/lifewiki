@@ -13,6 +13,9 @@ our %Hooks = ();
 # component roots that plugins can modify
 our @COMPROOT = ();
 
+# storage for temporary error messages
+our @Errors;
+
 BEGIN {
     %LifeWiki::PRIVILEGE_TABLE = (
         create_namespaces => {
@@ -62,6 +65,24 @@ BEGIN {
 sub getDatabase {
     # how we get the dbh for now
     return $HTML::Mason::Commands::dbh;
+}
+
+sub printErrors {
+    return unless @Errors;
+
+    my $s = scalar(@Errors) == 1 ? '' : 's';
+    print("<div class='error_bar'><p>The following error$s occurred with your submission:</p><ul><li>" .
+          join("</li><li>", @Errors) .
+          "</li></ul></div>");
+}
+
+sub clearErrors {
+    @Errors = ();
+}
+
+sub error {
+    push @Errors, shift();
+    return undef;
 }
 
 # add a hook to the system that other people can call and use
@@ -146,7 +167,7 @@ sub setTheme {
     die "Theme directory '$root' doesn't exist or is not a directory\n" unless -d $root;
 
     # note that we have a custom theme
-    $LifeWiki::CUSTOM_THEME = $root;
+    $LifeWiki::CUSTOM_THEME_DIR = $root;
 }
 
 # also taken from LiveJournal

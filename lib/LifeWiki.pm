@@ -182,6 +182,27 @@ sub setTheme {
     $LifeWiki::CUSTOM_THEME_DIR = $root;
 }
 
+sub findRelevantPages {
+    my $term = shift;
+    return undef unless $term;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    my $res = $dbh->selectcol_arrayref(qq{
+            SELECT pgid FROM searchdb WHERE MATCH (name, content) AGAINST (?)
+        }, undef, $term);
+    return undef if $dbh->err;
+    return undef unless $res && @$res;
+
+    my @ret;
+    foreach my $pgid (@$res) {
+        my $pg = LifeWiki::Page->newByPageId($pgid);
+        push @ret, $pg if $pg;
+    }
+    return \@ret;
+}
+
 # given a privilege name and an optional extraid, return a list of userids for people
 # that have this access.  returns an array of arrayrefs, [ userid, extraid ].
 sub getAccessList {

@@ -347,6 +347,10 @@ sub setContent {
     $dbh->do("REPLACE INTO changes (pgid, authorid, modtime) VALUES (?, ?, UNIX_TIMESTAMP())",
              undef, $self->{_pgid}, $remote->getUserid);
 
+    # and update our search text
+    $dbh->do("UPDATE searchdb SET content = ? WHERE pgid = ?",
+             undef, $content, $self->{_pgid});
+
     # and now run the hook so people know this happened
     LifeWiki::runHooks('page_content_changed',
         page => $self,

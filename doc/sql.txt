@@ -69,3 +69,12 @@ CREATE TABLE `pagetextcache` (
   `content` text NOT NULL,
   PRIMARY KEY  (`pgid`)
 ) TYPE=MyISAM;
+
+CREATE TABLE `searchdb` (
+  `pgid` int(11) NOT NULL default '0',
+  `name` varchar(255) NOT NULL default '',
+  `content` text,
+  PRIMARY KEY  (`pgid`),
+  FULLTEXT KEY `name` (`name`),
+  FULLTEXT KEY `name_2` (`name`,`content`)
+) TYPE=MyISAM;

@@ -1,3 +1,22 @@
-% $title = "Search";
+<%init>
+    $title = "Search";
 
-Functionality not implemented yet... sorry!
+    unless ($did_post) {
+        print "<p>You must enter this page with a post using the search form.</p>";
+        return;
+    }
+
+    my $args = $m->request_args;
+    my $term = $args->{search_term};
+    my $pages = LifeWiki::findRelevantPages($term);
+    unless ($pages && @$pages) {
+        print "<p>No search results found.</p>";
+        return;
+    }
+</%init>
+
+<ol>
+% foreach my $pg (@$pages) {
+    <li><a href="<% $pg->getURI %>"><% $pg->getName %></a></li>
+% }
+</ol>

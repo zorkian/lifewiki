@@ -1,0 +1,6 @@
+Basic LDAP authentication plugin that enables you to authenticate users
+against an LDAP server.
+
+Usage file to be written...
+
+Plugin by Mark Smith; mark@plogs.net.

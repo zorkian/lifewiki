@@ -18,16 +18,12 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
     use Apache::Cookie;
     use Apache::DBI;
     use DBI;
-    use Digest::MD5 qw(md5_hex);
 
     # now bring in our modules
     use LifeWiki;
     use LifeWiki::User;
     use LifeWiki::Page;
     use LifeWiki::Namespace;
-
-    # our custom handlers
-    use LifeWiki::Auth::LDAP;
 
     # require the markdown library
     $blosxom::version = 1; # hah
@@ -94,14 +90,6 @@ NameVirtualHost *
         $LifeWiki::THEMEDOMAIN = $LifeWiki::DOMAIN;
         $LifeWiki::THEMEROOT = "$LifeWiki::SITEROOT/theme";
     }
-
-    # now setup the authentication agent we want
-    LifeWiki::setAuthAgent("LDAP", {
-        server => 'ldap.sixapart.com',
-        base => 'ou=People,dc=sixapart,dc=com',
-        port => 389,
-    })
-        or die "Unable to load auth module: $@\n";
 
     # setup a connection to our database
     my ($db, $h, $un, $pw) = map { $LifeWiki::DBCONFIG{$_} } qw(database host username password);

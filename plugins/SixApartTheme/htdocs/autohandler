@@ -1,0 +1,109 @@
+<%init>
+    # call ourselves
+    my $url = $r->uri;
+    my $content = $m->scomp($m->fetch_next);
+</%init>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title><% $title %> - Six Apart Intranet Wiki</title>
+
+  <!-- extra page head content -->
+  <% $head %>
+  <!-- /end -->
+
+  <link rel="stylesheet" type="text/css" href="<% $LifeWiki::THEMEROOT %>/theme.css" />
+  <link rel="stylesheet" type="text/css" href="/css/toolbar.css" />
+  <link rel="stylesheet" type="text/css" href="/css/user_name.css" />
+  <link rel="stylesheet" type="text/css" href="/css/search.css" />
+
+  <link rel="stylesheet" type="text/css" href="/css/formatter.css" />
+  <link rel="stylesheet" type="text/css" href="/css/atom.css" />
+
+  <link rel="shortcut icon" href="" />
+  <link rel="start" href="index" title="Home" />
+
+</head>
+<body>
+
+<div id="container">
+
+<!-- BEGIN navigation -->
+<div id="navigation">
+
+  <div id="logo_pane">
+    <a href="/">
+    <img border="0" src="<% $LifeWiki::THEMEROOT %>/sixapart.png" align="center" alt="Six Apart Intranet Wiki" title="Six Apart Intranet Wiki" />
+    </a>
+  </div>
+
+  <& links.m &>
+
+  shortcuts: 
+  <div class="favorites_pane">
+    <!-- BEGIN favorites_pane.html -->
+    <strong>NOT WORKING YET</strong>
+    <ul>
+      <li><a href="/index.cgi?LiveJournal">LiveJournal</a></li>
+      <li><a href="/index.cgi?MovableType">Movable Type</a></li>
+      <li><a href="/index.cgi?TypeKey">TypeKey</a></li>
+
+      <li><a href="/index.cgi?TypePad">TypePad</a></li>
+    </ul>
+
+    <ul>
+      <li><a href="http://www.sixapart.com/">Corporate Homepage</a></li>
+      <li><a href="http://intranet.sixapart.com/mt/">Internal Blogs</a></li>
+      <li><a href="/index.cgi?NewAtSixApart">New at Six Apart?</a></li>
+
+      <li><a href="/index.cgi?PeoPle">People at Six Apart</a></li>
+    </ul>
+    <!-- END favorites_pane.html -->
+  </div>
+
+</div>
+<!-- END navigation -->
+
+<div id="content_pane">
+<!-- BEGIN display_content.html -->
+
+
+
+<div id="bread">
+<ul>
+
+</ul>
+
+</div>
+
+
+
+  <div id="title_pane">
+    <h1><% $title %></h1>
+  </div>
+
+
+
+  <!-- BEGIN display_content -->
+
+<div class="wiki">
+<% $content %>
+</div>
+
+<br class="clr" />
+
+<div id="footer">
+  <div id="footer-menu">
+    <a href="/index">Home</a> | 
+    <a href="http://daringfireball.net/projects/markdown/syntax" target="_new">Wiki Formatting Rules</a>
+  </div>
+  <div id="copyright">&copy; 2003-2005 Six Apart, LTD. All rights reserved. All content is proprietary and confidential.</div>
+</div>
+
+</div>
+
+</body>
+</html>

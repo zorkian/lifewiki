@@ -1,0 +1,222 @@
+.wiki ol,
+.wiki ul {
+	margin-left: 0px;
+	padding-left: 15px;
+}
+
+/* Nav - left column */
+#navigation {
+	float: left;
+	width: 150px;
+}
+
+.search_results,
+.user_preferences,
+.recent_changes,
+.favorites,
+.wiki {
+	float: left;
+}
+
+#footer {
+
+}
+
+#footer-menu {
+	text-align: center;
+	padding: 10px;
+}
+
+#copyright {
+	font-size: x-small;
+	color: rgb(170,170,170); 
+	margin-top: 15px;
+	padding-top: 5px;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-top-color: rgb(170, 170, 170);
+	text-align: center;
+}
+
+.favorites_pane,
+#search_pane,
+#toolbar_pane {
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(170, 170, 170);
+	margin-bottom: 10px;
+}
+
+.favorites_pane,
+#toolbar_pane {
+	padding-left: 10px;
+}
+
+#search_pane {
+	text-align: center;
+	padding: 10px;
+}
+
+#toolbar_pane ul {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#search_field {
+	width: 90%;
+}
+
+/* Main Content - right column */
+#content_pane {
+	margin-left: 165px;
+}
+
+div#bread {
+    font-size: small;
+}
+
+#bread ul li:before {
+        content: "\00BB \0020";
+	}
+	
+#bread ul li.first:before {
+	content: "";
+}
+
+#bread {
+	color: #ccc;
+	padding: 3px;
+	margin-bottom: 10px;
+}
+
+#bread ul {
+	margin-left: 0;
+	padding-left: 0;
+	display: inline;
+	border: none;
+} 
+
+#bread ul li {
+	margin-left: 0;
+	padding-left: 2px;
+	border: none;
+	list-style: none;
+	display: inline;
+}
+
+#title_pane a {
+	color: #000;
+	text-decoration: none;
+}
+
+#logo_pane {
+	padding-bottom: 10px;
+}
+    
+#logo_pane img {
+	width: 90px;
+}
+    
+#navigation ul {
+	margin-left: 0px;
+	padding-left: 0px;
+	list-style-type: none;
+}
+
+#content_pane li {
+	margin-left: 15px;
+}
+
+#navigation a:visited {
+	color: #00f;
+}
+
+body {
+	background: #fff;        
+	font-family: "Trebuchet MS", Trebuchet, verdana, arial, sans-serif;
+	font-size: .8em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0px;
+	padding: 0px;
+	font-weight: bold;
+}
+
+h1 {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgb(170, 170, 170);
+    margin-bottom: 10px;
+    font-size: 188%;
+}
+
+h2 {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgb(170, 170, 170);
+    margin-bottom: 10px;
+    font-size: 150%;
+}
+
+.error, .empty {
+  color: #f00;
+}
+
+a {
+//    color: rgb(16, 129, 185);
+    color: rgb(0,0,255);
+    text-decoration: none;
+}
+
+a:visited {
+    color: rgb(16, 129, 185);
+    text-decoration: none;
+}
+
+a:hover
+{
+    background-color: transparent;
+    background-image: none;
+    background-repeat: repeat;
+    background-attachment: scroll;
+    -x-background-x-position: 0%;
+    -x-background-y-position: 0%;
+    -moz-background-clip: initial;
+    -moz-background-origin: initial;
+    -moz-background-inline-policy: initial;
+    text-decoration: underline;
+}
+
+a.newlink {
+    color: rgb(255,0,0);
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    text-decoration: none;
+    color: rgb(0,0,0);
+}
+
+h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover {
+    text-decoration: underline;
+    color: rgb(16, 129, 185);
+}
+
+h1 a:visited, h2 a:visited, h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
+    color: rgb(0,0,0);
+}
+
+.attachments_widget {
+   margin-bottom: 10px;
+}
+
+.clr {
+     clear: both;
+     margin: 0 -1px -1px 0;
+     border: 0;
+     padding: 0;
+     width: 1px;
+     height: 1px;
+     font-size: 0;
+     line-height: 0;
+}

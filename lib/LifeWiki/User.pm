@@ -19,7 +19,6 @@ sub createAccount {
 
     my %opts = ( @_ );
     return undef unless $opts{username};
-    return undef unless $opts{password} || LifeWiki::Auth::allowNullPasswords();
 
     my $u = $class->newFromUser($opts{username});
     if ($u) {

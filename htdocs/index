@@ -1,0 +1,24 @@
+<%init>
+    $page = LifeWiki::Page->new($remote, 'index/default', '', 1);
+    unless ($page) {
+        print "<p>Bummer, there's no index page.</p>";
+        return;
+    }
+
+    # if the page is blank...
+    if ($page->isBlank) {
+        if ($remote && $page->isEditor($remote)) {
+            return $m->redirect($LifeWiki::SITEROOT . $page->getEditURI);
+        }
+
+        print "<p>Sorry, the page you're looking for hasn't been filled out yet!</p>";
+        return;
+    }
+
+    # now dump the page
+    $title = $page->getName;
+    my $content = ($page->getOutputContent($remote))[1];
+    print $content;
+</%init>
+
+<& page_footer.m &>

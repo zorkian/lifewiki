@@ -1,0 +1,37 @@
+<%method head>
+  <link rel="alternate" type="application/atom+xml" href="https://intranet.sixapart.com/index.cgi?action=atom_edit;page_name=FrontPage" />
+  <link rel="service.feed" type="application/atom+xml" href="https://intranet.sixapart.com/index.cgi?action=atom_feed" />
+  <link rel="service.post" type="application/atom+xml" href="https://intranet.sixapart.com/index.cgi?action=atom_post" />
+</%method>
+
+<%init>
+    my $arg = $m->dhandler_arg;
+    $title = $arg;
+
+    # now figure out where we are
+    $page = LifeWiki::Page->new($remote, $arg, '', 1);
+    unless ($page) {
+        # if we're in our own namespace...
+        $title = "Error";
+        print "<p>That page doesn't exist and you don't have the necessary access to create it.</p>";
+        return;
+    }
+
+    # if the page is blank...
+    if ($page->isBlank) {
+        if ($remote && $page->isEditor($remote)) {
+            return $m->redirect($LifeWiki::SITEROOT . $page->getEditURI);
+        }
+
+        print "<p>Sorry, the page you're looking for hasn't been filled out yet!</p>";
+        return;
+    }
+
+    # now set the title and print the body
+    $title = $page->getName;
+    my $content = ($page->getOutputContent($remote))[1];
+    print $content;
+
+</%init>
+
+<& page_footer.m &>

@@ -1,0 +1,82 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    unless ($arg =~ /^(\d+)(?:\/(\d+))?$/) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+    my ($pgid, $revnum) = ($1, $2);
+
+    $page = LifeWiki::Page->newByPageId($pgid);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page id appears to be invalid.</p>";
+        return;
+    }
+
+    if ($revnum) {
+        $title = $page->getName . " <span style='color: red;'>(revision $revnum)</span>";
+
+        my ($authorid, $content, $revtime) = $page->getOutputContent($remote, $revnum);
+        unless ($content && $revtime) {
+            print "<p>Revision number invalid.</p>";
+            return;
+        }
+        print $content;
+
+        my $u = LifeWiki::User->newFromUserid($authorid);
+        if ($u) {
+            print "<p><small>Revision by " . $u->getUsername . " at $revtime.</small></p>";
+        } else {
+            print "<p><small>Revision by an unknown user at $revtime.</small></p>";
+        }
+
+        print "<div class='pagelinks'>";
+
+        if ($revnum > 1) {
+            print "[ <a href='/revisions/$pgid/" . ($revnum-1) . "'>&lt;&lt; Back</a> ] ";
+        } else {
+            print "[ &lt;&lt; Back ]";
+        }
+        print "[ <a href='/revisions/$pgid'>^^ Up</a> ] ";
+        if ($revnum < $page->getRevNum) {
+            print "[ <a href='/revisions/$pgid/" . ($revnum+1) . "'>&gt;&gt; Forward</a> ]";
+        } else {
+            print "[ &gt;&gt; Forward ]";
+        }
+
+        print "</div>";
+
+    } else {
+        $title = "Page Revisions: " . $page->getName;
+
+        my $info = $page->getRevisionInfo;
+        unless (defined $info) {
+            print "Unable to get revision info.";
+            return;
+        }
+
+        print "<table width='80%'>";
+        foreach my $row (@$info) {
+            my ($rn, $auid, $revtime) = @$row;
+            next unless $rn; #ignore creation revision
+
+            print "<tr><td><a href='/revisions/$pgid/$rn'>revision #$rn</a></td>";
+            my $u = LifeWiki::User->newFromUserid($auid);
+            if ($u) {
+                print "<td>" . $u->getUsername . "</td>";
+            } else {
+                print "<td>unknown user</td>";
+            }
+            print "<td>$revtime</td></tr>\n";
+        }
+        print "</table>";
+    }
+
+</%perl>

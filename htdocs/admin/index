@@ -1,0 +1,7 @@
+% $title = "Admin Center";
+
+<p>Here are the various administrative pages you can visit.</p>
+
+<ul>
+<li><a href="/admin/namespaces">Admin Namespaces</a></li>
+</ul>

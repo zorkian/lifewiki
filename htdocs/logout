@@ -1,0 +1,18 @@
+% $title = "Logout";
+
+destroying your login cookie...
+
+<%perl>
+    my $c = Apache::Cookie->new($r,
+        -name => 'session',
+        -value => '',
+        -domain => $LifeWiki::DOMAIN,
+        -expires => '+0d',
+    );
+    $c->bake;
+
+    # also ghetto; kill the remote object
+    $remote = undef;
+</%perl>
+
+done

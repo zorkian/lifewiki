@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+### FIXME:
+# actually add content to this file... eventually I want users to do something like
+# this in their httpd.conf:
+#
+# <Location />
+#   PerlSetEnv LWHOME /home/mark/lifewiki
+#   PerlRequire /home/mark/lifewiki/mason_handler.pl
+# </Location>
+#
+# and then they never have to touch the mason handler and all of the configuration
+# is done through this config file... for example:
+
+{
+    package LifeWiki;
+
+    # basic site configuration options
+    $DOMAIN = "www.example.com";
+    $PORT = 80;
+    $SITEROOT = "http://$DOMAIN";
+    $SITEROOT .= ":$PORT" if $PORT != 80;
+
+    # setup our plugins
+    @PLUGINS = (
+        # add in the LDAP authentication plugin
+        [ 'LDAPAuth', {
+            base => "ou=...",
+            server => "ldap.example.com",
+            port => 369,
+        } ],
+
+        # and now, a plugin to our API
+        [ 'ExistsAPI', { } ],
+
+        # and some hypothetical markleft plugin
+        [ 'Markleft', {
+            allow_annoying_html => 1, # enable blink, marquee
+        } ],
+
+        # ... you get the idea
+    );
+
+    # add other configuration options...
+}

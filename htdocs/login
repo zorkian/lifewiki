@@ -1,0 +1,53 @@
+<%init>
+    $title = "Login";
+    if ($remote) {
+        print "<p>You are already logged in.</p>";
+        return;
+    }
+
+    unless (LifeWiki::Auth::canLoginManually()) {
+        my $url = LifeWiki::Auth::getLoginURL();
+        return $m->redirect($url) if $url;
+
+        print "<p>Error: this site does not support this style of login.  Please use the login link above.</p>";
+        return;
+    }
+
+    if ($did_post) {
+        my $args = $m->request_args;
+
+        my $u = LifeWiki::User->newFromUser($args->{username});
+        unless ($u) {
+            print "<p>Username or password mismatch.</p>";
+            return;
+        }
+
+        unless ($u->getPassword eq $args->{password}) {
+            print "<p>Username or password mismatch.</p>";
+            return;
+        }
+
+        # must be good
+        my $sess = $u->generateSession;
+        my $c = Apache::Cookie->new($r,
+            -name => 'session',
+            -value => $u->getUsername . ":" . $sess . ":",
+            -domain => $LifeWiki::DOMAIN,
+            -expires => '+1d',
+        );
+        $c->bake;
+
+        # kinda ghetto ... set remote to be the test user :)
+        $remote = $u;
+
+        print "<p>You have been successfully logged in.</p>";
+        return;
+    }
+
+</%init>
+
+<form method="post" action="/login">
+Username: <input type="text" name="username"><br />
+Password: <input type="password" name="password"><br />
+<input type="submit" value="Login">
+</form>

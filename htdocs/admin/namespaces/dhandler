@@ -1,0 +1,77 @@
+<%perl>
+
+    # the object of this module is to see what the user is wanting to do and then
+    # allow or disallow it based on whether they did a get/post and whether or not
+    # they have the appropriate access level.
+
+    my $action = $m->dhandler_arg;
+    my $arg;
+
+    if ($action =~ /^(\w+)\/(.+)$/) {
+        $action = $1;
+        $arg = $2;
+    }
+
+    ##### setup a base title and the variables we'll use later
+    $title = 'Error';
+    my $need_post = 0; # set to 1 to fail if they didn't post
+    my @need_privs;    # push on [ 'priv', extraid || undef ] pairs to require all of these
+    my @oneof_privs;   # same type of pairs; user must have ONE OF these
+
+    ##### now setup the attributes based on what action/page they're doing
+    if ($action eq 'edit') {
+        $need_post = 1;
+        $title = 'Edit Namespace';
+
+    } elsif ($action eq 'view') {
+        $title = 'View Namespace';
+        
+    } elsif ($action eq 'create') {
+        $need_post = 1;
+        $title = 'Create Namespace';
+        push @need_privs, [ 'create_namespaces', undef ];
+
+    } else {
+        print "<p>The requested action isn't valid or hasn't been implemented yet.</p>";
+        return;
+    }
+
+    ##### verify post action if necessary
+    if ($need_post && ! $did_post) {
+        print "<p>This page must be accessed via a form submission.</p>";
+        return;
+    }
+
+    ##### verify required privs (AND privs)
+    foreach my $pair (@need_privs) {
+        my ($priv, $extra) = @$pair;
+        unless ($remote->can($priv, $extra)) {
+            print "<p>You do not have one or more of the privileges required to access this page.</p>";
+            return;
+        }
+    }
+
+    ##### verify OR privs
+    if (@oneof_privs) {
+        my $oneof = 0;
+        foreach my $pair (@oneof_privs) {
+            my ($priv, $extra) = @$pair;
+            if ($remote->can($priv, $extra)) {
+                $oneof = 1;
+            }
+        }
+
+        unless ($oneof) {
+            print "<p>You do not have one or more of the privileges required to access this page.</p>";
+            return;
+        }
+    }
+
+    ##### theoretically they should be golden at this point, so let's pass on
+    $m->comp("$action.m", arg => $arg); 
+    if ($@) {
+        print "<p>The requested action isn't valid or hasn't been implemented yet.</p>";
+        return;
+    }
+
+</%perl>

@@ -1,0 +1,45 @@
+<%perl>
+    $title = "Login via TypeKey";
+    if ($remote) {
+        print "You are already logged in.";
+        return;
+    }
+
+    my $data = LifeWiki::Auth::tryVerify($r);
+    unless (defined $data) {
+        # if it falls through, something failed
+        print "<p>Error: please try visiting our login page again.</p>";
+        print "<p>$@</p>" if $@;
+        return;
+    }
+
+    my $u = LifeWiki::User->newFromUser($data->{name});
+    unless (defined $u) {
+        $u = LifeWiki::User->createAccount(
+            username => $data->{name},
+            password => undef, # typekey has no passwords on our end
+            nickname => $data->{nick},
+            email => $data->{email},
+        );
+        unless (defined $u) {
+            print "<p>Error: unable to access your LifeWiki account.  Please try again later.</p>";
+            return;
+        }
+    }
+
+    # must be good
+    my $sess = $u->generateSession;
+    my $c = Apache::Cookie->new($r,
+        -name => 'session',
+        -value => $u->getUsername . ":" . $sess . ":",
+        -domain => $LifeWiki::DOMAIN,
+        -expires => '+1d',
+    );
+    $c->bake;
+
+    # ghetto?
+    $remote = $u;
+
+    print "<p>You have been successfully logged in.</p>";
+    return;
+</%perl>

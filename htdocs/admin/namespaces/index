@@ -1,0 +1,20 @@
+<%perl>
+    $title = "Manage Namespaces";
+    my @ids = $remote->getAccessList('admin_namespace');
+</%perl>
+
+% if ($remote->can('create_namespaces')) {
+    <h2>Create Namespace</h2>
+    <form method='post' action='/admin/namespaces/create'>
+    <input type="text" name="crname" /><input type="submit" value="Create Namespace" />
+    </form>
+% }
+% return unless @ids;
+
+<h2>Manage Namespaces</h2>
+
+<ul>
+% foreach my $id (@ids) {
+    <li><a href="/admin/namespaces/view/<% $id %>"><% LifeWiki::Namespace::getNamespaceName($id) %></a></li>
+% }
+</ul>

@@ -1,0 +1,10 @@
+<%perl>
+
+    unless ($remote) {
+        print "You must be logged in to access the admin interface.";
+        return;
+    }
+
+    $m->call_next;
+
+</%perl>

@@ -1,0 +1,39 @@
+<%perl>
+
+    $title = "Recent Edits";
+
+    unless ($remote) {
+        print "You need to be logged in to view your recent edits.";
+        return;
+    }
+
+    my $dbh = LifeWiki::getDatabase();
+    unless ($dbh) {
+        print "Can't get database handle.";
+        return;
+    }
+
+    my $changes = $dbh->selectall_arrayref('SELECT pgid, modtime FROM changes WHERE authorid = ? ORDER BY modtime DESC LIMIT 100',
+                                           undef, $remote->getUserid);
+    if ($dbh->err) {
+        print "Database error: " . $dbh->errstr;
+        return;
+    }
+
+    print "<table width='80%'>";
+    foreach my $change (@$changes) {
+        my ($pgid, $modtime) = @$change;
+        my $page = LifeWiki::Page->newByPageId($pgid);
+        $modtime = LifeWiki::mysql_time($modtime);
+
+        print "<tr><td>";
+        if ($page) {
+            print "<a href='" . $page->getURI . "'>" . $page->getNamespace . "/" . $page->getName . "</a>";
+        } else {
+            print "page not found";
+        }
+        print "</td><td>$modtime</td></tr>";
+    }
+    print "</table>";
+
+</%perl>

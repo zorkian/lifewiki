@@ -1,0 +1,40 @@
+<%perl>
+
+    $title = "Recent Changes";
+
+    my $dbh = LifeWiki::getDatabase();
+    unless ($dbh) {
+        print "Can't get database handle.";
+        return;
+    }
+
+    my $changes = $dbh->selectall_arrayref('SELECT pgid, authorid, modtime FROM changes ORDER BY modtime DESC LIMIT 100');
+    if ($dbh->err) {
+        print "Database error: " . $dbh->errstr;
+        return;
+    }
+
+    print "<table width='80%'>";
+    foreach my $change (@$changes) {
+        my ($pgid, $authorid, $modtime) = @$change;
+        my $page = LifeWiki::Page->newByPageId($pgid);
+        my $u = LifeWiki::User->newFromUserid($authorid);
+        $modtime = LifeWiki::mysql_time($modtime);
+
+        print "<tr><td>";
+        if ($page) {
+            print "<a href='" . $page->getURI . "'>" . $page->getNamespace . "/" . $page->getName . "</a>";
+        } else {
+            print "page not found";
+        }
+        print "</td><td>";
+        if ($u) {
+            print $u->getUsername;
+        } else {
+            print "user not found";
+        }
+        print "</td><td>$modtime</td></tr>";
+    }
+    print "</table>";
+
+</%perl>

@@ -1,0 +1,63 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "You must be logged into use this page.";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg + 0;
+    unless ($arg) {
+        $title = "Error";
+        print "You have reached this page in an invalid way.";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "That page is invalid.";
+        return;
+    }
+
+    unless ($page->isEditor($remote)) {
+        $title = "Error";
+        print "You do not have the proper access to edit this page.";
+        return;
+    }
+
+    if ($did_post) {
+        my $args = $m->request_args;
+
+        unless ($page->setContent($remote, $args->{content})) {
+            $title = "Error";
+            print "Unable to save content.";
+            return;
+        }
+
+        # redirect back to the page
+        return $m->redirect($LifeWiki::SITEROOT . "/" . $page->getURI);
+        $title = "Changes Saved";
+        print "Your changes have been saved!";
+        return;
+    }
+
+    # if we fall through, we didn't post
+    $title = "Edit Page: " . $page->getName;
+    my ($authorid, $content) = $page->getEscapedContent;
+    my $author = LifeWiki::User->newFromUserid($authorid);
+
+</%perl>
+
+<form method="post" action="<% $page->getEditURI %>">
+Please edit the page below here:<br />
+
+<textarea name="content" rows="15" cols="80"><% $content %></textarea><br />
+
+<input type="submit" value="Save Changes">
+(or <a target="_new" href="http://daringfireball.net/projects/markdown/syntax">see Markdown syntax</a>)
+
+</form>
+
+% if ($author) {
+    <p>Last edited by <% $author->getUsername %>.</p>
+% }

@@ -244,6 +244,11 @@ sub getRevisionsURI {
     return "/revisions/$self->{_pgid}";
 }
 
+sub getDiffURI {
+    my $self = shift;
+    return "/diff/$self->{_pgid}";
+}
+
 # optional argument is what revision number to get, undef for current
 sub getContent {
     my $self = shift;
@@ -333,6 +338,13 @@ sub setContent {
     # now note the update
     $dbh->do("REPLACE INTO changes (pgid, authorid, modtime) VALUES (?, ?, UNIX_TIMESTAMP())",
              undef, $self->{_pgid}, $remote->getUserid);
+
+    # and now run the hook so people know this happened
+    LifeWiki::runHooks('page_content_changed',
+        page => $self,
+        remote => $remote,
+        content => $content,
+    );
 
     return 1;
 }

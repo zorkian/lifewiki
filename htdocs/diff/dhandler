@@ -1,0 +1,79 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    unless ($arg =~ /^(\d+)(?:\/(\d+)(?:\/(\d+))?)?$/) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+    my ($pgid, $from, $to) = ($1, $2, $3);
+
+    $page = LifeWiki::Page->newByPageId($pgid);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page id appears to be invalid.</p>";
+        return;
+    }
+
+    # constrain revision numbers
+    $to ||= $page->getRevNum;
+    if ($to < 2 || $to > $page->getRevNum) {
+        $title = "Error";
+        print "<p>Ending revision number invalid.</p>";
+        return;
+    }
+
+    $from ||= $to-1;
+    if ($from < 1 || $from >= $to) {
+        $title = "Error";
+        print "<p>Starting revision number invalid.</p>";
+        return;
+    }
+
+    # set the title, etc
+    $title = $page->getName . " <span style='color: rgb(255,0,0);'>(diff $from-$to)</span>";
+
+    # get the contents
+    my $content_from = ($page->getOutputContent($remote, $from))[1];
+    my $content_to = ($page->getOutputContent($remote, $to))[1];
+
+    # now do the diff
+    use HTML::Diff;
+    my $res = html_word_diff($content_from, $content_to);
+
+    my $x;
+    my $out = sub {
+        my ($text, $col) = @_;
+        if ($col) {
+            if ($text =~ m/>.+</) {
+                $text =~ s{>(.+?)<}{><span style='background-color: rgb($col);'>$1</span><}gs;
+                $x .= $text;
+            } else {
+                $x .= "<span style='background-color: rgb($col);'>$text</span>";
+            }
+        } else {
+            $x .= $text;
+        }
+    };
+    foreach my $row (@$res) {
+        my ($flag, $elem_l, $elem_r) = @$row;
+        if ($flag eq 'u') {
+            $out->($elem_l, );
+        } elsif ($flag eq '+') {
+            $out->($elem_r, '220,255,220');
+        } elsif ($flag eq '-') {
+            $out->($elem_l, '255,220,220');
+        } elsif ($flag eq 'c') {
+            $out->($elem_r, '255,255,220');
+        } else {
+            $out->("[$elem_l|$elem_r]");
+        }
+    }
+    print $x;
+
+</%perl>

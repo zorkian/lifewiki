@@ -30,6 +30,7 @@ menu:
 %     }
 %     if ($remote) {
         <li><a href="<% $page->getRevisionsURI %>" accesskey="r" title="Previous Revision">Revision <% $page->getRevNum %></a></li>
+        <li><a href="<% $page->getDiffURI %>" title="Colored Differences to Last Version">Visualize Changes</a></li>
 %     } else {
         <li>Revision <% $page->getRevNum %></li>
 %     }

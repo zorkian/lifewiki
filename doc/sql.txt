@@ -64,3 +64,8 @@ CREATE TABLE `user` (
   UNIQUE KEY `user` (`user`)
 ) TYPE=MyISAM;
 
+CREATE TABLE `pagetextcache` (
+  `pgid` int(11) NOT NULL default '0',
+  `content` text NOT NULL,
+  PRIMARY KEY  (`pgid`)
+) TYPE=MyISAM;

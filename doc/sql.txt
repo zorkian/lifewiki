@@ -19,6 +19,7 @@ CREATE TABLE `namespace` (
   `nmid` int(11) NOT NULL auto_increment,
   `ownerid` int(11) NOT NULL default '0',
   `name` varchar(255) NOT NULL default '',
+  `description` varchar(60) default NULL,
   `frontpage` tinyint(4) NOT NULL default '0',
   `readsec` enum('public','secure') NOT NULL default 'public',
   `writesec` enum('public','secure') NOT NULL default 'public',

@@ -22,6 +22,7 @@
     if ($action eq 'edit') {
         $need_post = 1;
         $title = 'Edit Namespace';
+        push @need_privs, [ 'admin_namespace', $arg ];
 
     } elsif ($action eq 'view') {
         $title = 'View Namespace';

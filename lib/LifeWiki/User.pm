@@ -163,6 +163,25 @@ sub can {
     return $ct ? 1 : 0;
 }
 
+sub grant {
+    my $self = shift;
+    my ($privname, $extraid) = @_;
+
+    my $priv = $LifeWiki::PRIVILEGE_TABLE{$privname};
+    die "No such privilege $privname\n" unless $priv;
+
+    my $privid = $priv->{id};
+    return undef unless $privid;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    $dbh->do("REPLACE INTO access (userid, privid, extraid) VALUES (?, ?, ?)",
+             undef, $self->getUserid, $privid, $extraid || 0);
+    return undef if $dbh->err;
+    return 1;
+}
+
 sub getAccessList {
     my $self = shift;
     my $privname = shift;

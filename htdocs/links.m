@@ -16,12 +16,10 @@ user:
 menu: 
 <div id="toolbar_pane"><div class="toolbar"><ul><div class="toolbar">
 
-<!-- BEGIN search_box -->
 <form method="post" action="/search" enctype="application/x-www-form-urlencoded" style="display: inline">
 <input type="text" name="search_term" size="8" value="Search" onfocus="this.value=''" />
 <input type="hidden" name="action" value="search" />
 </form>
-<!-- END search_box -->
 
 <li><a href="/index" accesskey="h" title="Home Page">Home</a></li>
 <li><a href="/changes" accesskey="c" title="Recent Changes">Changes</a></li>

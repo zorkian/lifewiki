@@ -7,5 +7,11 @@
         return;
     }
 
-print "not done";
+    my $ns = LifeWiki::Namespace::createNew($crname, $remote);
+    unless ($ns) {
+        print "<p>Failed to create the namespace.  Please verify it doesn't exist first.</p>";
+        return;
+    }
+
+    $m->redirect("/admin/namespaces/view/" . $ns->getNamespaceId);
 </%perl>

@@ -31,41 +31,15 @@
 
 <div id="container">
 
-<!-- BEGIN navigation -->
 <div id="navigation">
-
   <div id="logo_pane">
     <a href="/">
     <img border="0" src="<% $LifeWiki::THEMEROOT %>/sixapart.png" align="center" alt="Six Apart Intranet Wiki" title="Six Apart Intranet Wiki" />
     </a>
   </div>
-
   <& links.m &>
-
-  shortcuts: 
-  <div class="favorites_pane">
-    <!-- BEGIN favorites_pane.html -->
-    <strong>NOT WORKING YET</strong>
-    <ul>
-      <li><a href="/index.cgi?LiveJournal">LiveJournal</a></li>
-      <li><a href="/index.cgi?MovableType">Movable Type</a></li>
-      <li><a href="/index.cgi?TypeKey">TypeKey</a></li>
-
-      <li><a href="/index.cgi?TypePad">TypePad</a></li>
-    </ul>
-
-    <ul>
-      <li><a href="http://www.sixapart.com/">Corporate Homepage</a></li>
-      <li><a href="http://intranet.sixapart.com/mt/">Internal Blogs</a></li>
-      <li><a href="/index.cgi?NewAtSixApart">New at Six Apart?</a></li>
-
-      <li><a href="/index.cgi?PeoPle">People at Six Apart</a></li>
-    </ul>
-    <!-- END favorites_pane.html -->
-  </div>
-
+  <& shortcuts.m &>
 </div>
-<!-- END navigation -->
 
 <div id="content_pane">
 

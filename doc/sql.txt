@@ -1,0 +1,63 @@
+CREATE TABLE `access` (
+  `userid` int(11) NOT NULL default '0',
+  `privid` int(11) NOT NULL default '0',
+  `extraid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`userid`,`privid`,`extraid`),
+  KEY `privid` (`privid`)
+) TYPE=MyISAM;
+
+CREATE TABLE `changes` (
+  `pgid` int(11) NOT NULL default '0',
+  `authorid` int(11) NOT NULL default '0',
+  `modtime` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`pgid`),
+  KEY `modtime` (`modtime`),
+  KEY `authorid` (`authorid`)
+) TYPE=MyISAM;
+
+CREATE TABLE `namespace` (
+  `nmid` int(11) NOT NULL auto_increment,
+  `ownerid` int(11) NOT NULL default '0',
+  `name` varchar(255) NOT NULL default '',
+  `readsec` enum('public','secure') NOT NULL default 'public',
+  `writesec` enum('public','secure') NOT NULL default 'public',
+  PRIMARY KEY  (`nmid`,`name`),
+  KEY `name` (`name`)
+) TYPE=MyISAM;
+
+CREATE TABLE `page` (
+  `pgid` int(11) NOT NULL auto_increment,
+  `nmid` int(11) NOT NULL default '0',
+  `authorid` int(11) NOT NULL default '0',
+  `name` varchar(255) binary NOT NULL default '',
+  `revnum` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`nmid`,`name`),
+  KEY `pgid` (`pgid`)
+) TYPE=MyISAM;
+
+CREATE TABLE `pagetext` (
+  `pgid` int(11) NOT NULL default '0',
+  `revnum` int(11) NOT NULL default '0',
+  `revtime` int(11) NOT NULL default '0',
+  `authorid` int(11) NOT NULL default '0',
+  `content` text NOT NULL,
+  PRIMARY KEY  (`pgid`,`revnum`)
+) TYPE=MyISAM;
+
+CREATE TABLE `sessions` (
+  `userid` int(11) NOT NULL default '0',
+  `session` char(36) NOT NULL default '',
+  `goodto` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`userid`,`session`)
+) TYPE=MyISAM;
+
+CREATE TABLE `user` (
+  `userid` int(11) NOT NULL auto_increment,
+  `user` varchar(255) NOT NULL default '',
+  `password` varchar(25) default NULL,
+  `email` varchar(255) default NULL,
+  `nickname` varchar(255) default NULL,
+  PRIMARY KEY  (`userid`),
+  UNIQUE KEY `user` (`user`)
+) TYPE=MyISAM;
+

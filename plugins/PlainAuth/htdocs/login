@@ -29,7 +29,7 @@
         );
         $c->bake;
 
-        # kinda ghetto ... set remote to be the test user :)
+        # set our remote for the duration of this transaction
         $remote = $u;
 
         print "<p>You have been successfully logged in.</p>";
@@ -38,8 +38,14 @@
 
 </%init>
 
+<p>In order to login to this site, please fill out this form.</p>
+
 <form method="post" action="/login">
-Username: <input type="text" name="username"><br />
-Password: <input type="password" name="password"><br />
-<input type="submit" value="Login">
+<table>
+<tr><td>Username:</td><td><input type="text" name="username"></td></tr>
+<tr><td>Password:</td><td><input type="password" name="password"></td></tr>
+<tr><td></td><td><input type="submit" value="Login"></td></tr>
+</table>
 </form>
+
+<p>If you do not have an account, you can <a href="/create">create one</a>.</p>

@@ -1,0 +1,75 @@
+<%init>
+    $title = "Create Account";
+
+    if ($remote) {
+        print "<p>You already have an account, it seems.</p>";
+        return;
+    }
+
+    if ($did_post) {
+        my $args = $m->request_args;
+        my ($un, $pw, $pw2, $nick, $email) =
+            ($args->{username}, $args->{password}, $args->{password2}, $args->{nick}, $args->{email});
+
+        my $fix = sub { $_[0] =~ s/^\s+//; $_[0] =~ s/\s+$//; };
+        $fix->($un);
+        $fix->($pw);
+        $fix->($pw2);
+        $fix->($nick);
+        $fix->($email);
+
+        unless ($un && $pw && $pw2 && $nick && $email) {
+            print "<p>Please go back and fill out all fields.</p>";
+            return;
+        }
+        unless ($pw eq $pw2) {
+            print "<p>Your passwords didn't match.  Please try again.</p>";
+            return;
+        }
+        unless ($email =~ /^.+\@.+\..+$/) {
+            print "<p>Your email address doesn't seem valid.  Please try again.</p>";
+            return;
+        }
+
+        # create the account
+        my $u = LifeWiki::User->createAccount(
+            username => $un,
+            password => $pw,
+            nickname => $nick,
+            email => $email,
+        );
+        unless ($u) {
+            print "<p>Unable to create account: it may exist already?</p>";
+            return;
+        }
+
+        # okay, make a login session
+        my $sess = $u->generateSession;
+        my $c = Apache::Cookie->new($r,
+            -name => 'session',
+            -value => $u->getUsername . ":" . $sess . ":",
+            -domain => $LifeWiki::DOMAIN,
+            -expires => '+1d',
+        );
+        $c->bake;
+
+        # set our remote for the duration of this transaction
+        $remote = $u;
+
+        print "<p>You have successfully created an account.</p>";
+        return;
+    }
+</%init>
+
+<p>Please fill out the following form to create an account on this site.</p>
+
+<form method='post' action='/create'>
+<table>
+<tr><td>Username:</td><td><input type='text' name='username' /></td></tr>
+<tr><td>Password:</td><td><input type='password' name='password' /></td></tr>
+<tr><td>Password again:</td><td><input type='password' name='password2' /></td></tr>
+<tr><td>Your Name:</td><td><input type='text' name='nick' /></td></tr>
+<tr><td>Email Address:</td><td><input type='text' name='email' /></td></tr>
+<tr><td></td><td><input type='submit' value='Create Account' /></td></tr>
+</table>
+</form>

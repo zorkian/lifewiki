@@ -246,7 +246,15 @@ sub getRevisionsURI {
 
 sub getDiffURI {
     my $self = shift;
-    return "/diff/$self->{_pgid}";
+    my ($from, $to) = @_;
+    my $uri = "/diff/$self->{_pgid}";
+    if ($from) {
+        $uri .= "/$from";
+        if ($to) {
+            $uri .= "/$to";
+        }
+    }
+    return $uri;
 }
 
 # optional argument is what revision number to get, undef for current

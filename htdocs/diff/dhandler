@@ -1,4 +1,22 @@
 <%perl>
+    $head .= <<EOC;
+<style type="text/css">
+<!--
+
+ins {
+    background-color: rgb(220,255,220);
+    text-decoration: none;
+}
+
+del {
+    background-color: rgb(255,220,220);
+    text-decoration: none;
+}
+
+-->
+</style>
+EOC
+
     unless ($remote) {
         $title = "Error";
         print "<p>You must be logged into use this page.</p>";
@@ -46,34 +64,89 @@
     use HTML::Diff;
     my $res = html_word_diff($content_from, $content_to);
 
+    use HTML::TokeParser;
     my $x;
     my $out = sub {
         my ($text, $col) = @_;
-        if ($col) {
-            if ($text =~ m/>.+</) {
-                $text =~ s{>(.+?)<}{><span style='background-color: rgb($col);'>$1</span><}gs;
-                $x .= $text;
+
+        # works in simple cases, bombs on tags with attributes
+        #$text =~ s{(?<=\b)(?<![</])([^<>]+)(?!>)}{<$col>${1}</$col>}gs if $col;
+
+        # this got complicated and annoying
+        #my @tags;
+        #my $push = sub { push @tags, shift(); return "!~!~!" };
+        #my $pop = sub { return shift @tags; };
+        #$text =~ s/(<.+?>)/$push->($1)/ge;
+        #$text =~ s{^(.+?)!~!~!}{<$col>$1</$col>!~!~!}gs;
+        #$text =~ s{!~!~!(.+?)$}{!~!~!<$col>$1</$col>}gs;
+        #$text =~ s{!~!~!(.+?)!~!~!}{<$col>$1</$col>}gs;
+        #$text =~ s/!~!~!/$pop->()/ge;
+
+        # this is pretty crap too...but it works better for not breaking HTML
+        my $n = HTML::TokeParser->new(\$text);
+        while (my $p = $n->get_token) {
+            my $type = $p->[0];
+            if ($type eq 'S') {
+                $x .= "<$p->[1]";
+                $x .= " " . join(" ", map { "$_=\"$p->[2]->{$_}\"" } keys %{$p->[2]}) if %{$p->[2] || {}};
+                $x .= ">";
+            } elsif ($type eq 'E') {
+                $x .= "</$p->[1]>";
+            } elsif ($type eq 'T') {
+                if ($p->[1] && $col) {
+                    $x .= "<$col>$p->[1]</$col>";
+                } else {
+                    $x .= $p->[1];
+                }
+            } elsif ($type eq 'C') {
+                $x .= "<!-- $p->[1] -->";
+            } elsif ($type eq 'D') {
+                $x .= "WTF: $p->[1]<br />";
+            } elsif ($type eq 'PI') {
+                $x .= "WTF: $p->[1], $p->[2]<br />";
             } else {
-                $x .= "<span style='background-color: rgb($col);'>$text</span>";
+                $x .= "WTF: type=$type<br />";
             }
-        } else {
-            $x .= $text;
         }
     };
     foreach my $row (@$res) {
         my ($flag, $elem_l, $elem_r) = @$row;
         if ($flag eq 'u') {
-            $out->($elem_l, );
+            $out->($elem_l);
+            #$out->("<p>same: " . LifeWiki::ehtml($elem_l) . "</p>");
+            #$out->($elem_l, );
         } elsif ($flag eq '+') {
-            $out->($elem_r, '220,255,220');
+            $out->($elem_r, 'ins');
+            #$out->("<p>added: " . LifeWiki::ehtml($elem_r) . "</p>");
+            #$out->($elem_r, '220,255,220');
         } elsif ($flag eq '-') {
-            $out->($elem_l, '255,220,220');
+            $out->($elem_l, 'del');
+            #$out->("<p>removed: " . LifeWiki::ehtml($elem_l) . "</p>");
+            #$out->($elem_l, '255,220,220');
         } elsif ($flag eq 'c') {
-            $out->($elem_r, '255,255,220');
+            $out->($elem_l, 'del');
+            $out->($elem_r, 'ins');
+            #$out->("<p>changed: " . LifeWiki::ehtml($elem_r) . "</p>");
+            #$out->($elem_r, '255,255,220');
         } else {
             $out->("[$elem_l|$elem_r]");
         }
     }
     print $x;
+
+    # add links for next change set
+    if ($from > 1) {
+        my $uri = $page->getDiffURI($from-1, $from);
+        print "[ <a href='$uri'>&lt;&lt; Previous Change</a> ]";
+    } else {
+        print "[ &lt;&lt; Previous Change ]";
+    }
+    print "[ <a href='", $page->getDiffURI, "'>^^ Current Version</a> ]";
+    if ($to < $page->getRevNum) {
+        my $uri = $page->getDiffURI($to, $to+1);
+        print "[ <a href='$uri'>&gt;&gt; Next Change</a> ]";
+    } else {
+        print "[ >> Next Change ]";
+    }
 
 </%perl>

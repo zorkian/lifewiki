@@ -3,4 +3,29 @@ Welcome to LifeWiki.
 Eventually this document will contain a bit about the software, but maybe
 that's irrelevant if it's never going to have public source release.
 
-Who knows.
+If you're setting this up somewhere, the incantations that you should know
+to get your httpd.conf setup correctly are:
+
+# Basic setup that is used first, with clarifications below
+PerlModule HTML::Mason::ApacheHandler
+PerlSetEnv LIFEWIKIHOME /home/xb95/lifewiki
+PerlRequire /home/xb95/lifewiki/mason_handler.pl
+
+# Handle files in the root
+<Location />
+    DefaultType text/html
+    SetHandler perl-script
+    PerlHandler LifeWiki::HTML
+</Location>
+
+# Serve regular files outside of the scope of Mason
+<LocationMatch "\.(css|js|png|jpg|jpeg|gif)">
+    SetHandler default-handler
+</LocationMatch>
+
+# DO NOT serve files with a .m extension and do not serve the
+# autohandlers and dhandlers that we have setup
+<LocationMatch "(\.m|dhandler|autohandler)$">
+    SetHandler perl-script
+    PerlInitHandler Apache::Constants::NOT_FOUND
+</LocationMatch>

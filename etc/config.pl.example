@@ -21,6 +21,14 @@
     $SITEROOT = "http://$DOMAIN";
     $SITEROOT .= ":$PORT" if $PORT != 80;
 
+    # setup database access
+    %DBCONFIG = (
+        host => 'localhost',
+        database => 'lifewiki',
+        username => 'lifewiki',
+        password => 'lifewiki',
+    );
+
     # setup our plugins
     @PLUGINS = (
         # add in the LDAP authentication plugin

@@ -1,10 +1,15 @@
 #!/usr/bin/perl
 
 package LifeWiki::HTML;
+
 use strict;
-use lib '/home/mark/lifewiki/lib';
+use lib "$ENV{LIFEWIKIHOME}/lib";
+
 use HTML::Mason::ApacheHandler;
 use Apache::Request;
+
+# import our configuration from the user
+require "$ENV{LIFEWIKIHOME}/etc/config.pl";
 
 {
     package HTML::Mason::Commands;
@@ -28,12 +33,6 @@ use Apache::Request;
     $blosxom::version = 1; # hah
     require 'Markdown.pl';
 
-    # setup some variables
-    $LifeWiki::DOMAIN = "192.168.64.248";
-    $LifeWiki::PORT = 80;
-    $LifeWiki::SITEROOT = "http://$LifeWiki::DOMAIN";
-    $LifeWiki::SITEROOT .= ":$LifeWiki::PORT" if $LifeWiki::PORT != 80;
-
     # now setup the authentication agent we want
     LifeWiki::setAuthAgent("LDAP", {
         server => 'ldap.sixapart.com',
@@ -43,7 +42,8 @@ use Apache::Request;
         or die "Unable to load auth module: $@\n";
 
     # setup a connection to our database
-    $HTML::Mason::Commands::dbh = DBI->connect("DBI:mysql:lifewiki:localhost", "lifewiki", "lifewiki");
+    my ($db, $h, $un, $pw) = map { $LifeWiki::DBCONFIG{$_} } qw(database host username password);
+    $HTML::Mason::Commands::dbh = DBI->connect("DBI:mysql:$db:$h", $un, $pw);
 }
 
 # Create Mason object.
@@ -68,7 +68,7 @@ sub handler
     %HTML::Mason::Commands::cookies = Apache::Cookie->fetch;
     $HTML::Mason::Commands::remote = LifeWiki::User->newFromCookies(\%HTML::Mason::Commands::cookies);
     $HTML::Mason::Commands::did_post = ($r->method eq 'POST' ? 1 : 0);
-    $HTML::Mason::Commands::title = "(UNDEFINED)";
+    $HTML::Mason::Commands::title = "boring lack of a title";
     $HTML::Mason::Commands::page = undef;
     $HTML::Mason::Commands::head = "";
 

@@ -86,6 +86,12 @@ sub tryVerify {
         return LifeWiki::error("Password mismatch (MD5) from LDAP server; is your password correct?")
             unless $data eq md5($pw);
 
+    } elsif ($auth eq 'SMD5') {
+        my $salt = substr($data, 16);
+        my $orig = substr($data, 0, 16);
+        return LifeWiki::error("Password mismatch (SMD5) from LDAP server; is your password correct?")
+            unless $orig eq md5($pw, $salt);
+
     } elsif ($auth eq 'SSHA') {
         my $salt = substr($data, 20);
         my $orig = substr($data, 0, 20);

@@ -149,9 +149,18 @@ sub ehtml {
 sub addComponentRoot {
     my $root = shift;
     $root = "$ENV{LIFEWIKIHOME}/$root";
-
     die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
+
     unshift @COMPROOT, [ scalar(@COMPROOT)+1 => $root ];
+}
+
+sub setTheme {
+    my $root = shift;
+    $root = "$ENV{LIFEWIKIHOME}/$root";
+    die "Theme directory '$root' doesn't exist or is not a directory\n" unless -d $root;
+
+    # note that we have a custom theme
+    $LifeWiki::CUSTOM_THEME = $root;
 }
 
 # also taken from LiveJournal

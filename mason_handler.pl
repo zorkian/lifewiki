@@ -50,6 +50,51 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
         die "Plugin $name failed to return 1 ($rv) from init()\n" unless $rv;
     }
 
+    # now setup the httpd.conf
+    Apache->httpd_conf(qq{
+# Basic configuration
+DirectoryIndex index index.html
+ServerName $LifeWiki::DOMAIN
+
+# Serve regular files outside of the scope of Mason
+<LocationMatch "\.(css|js|png|jpg|jpeg|gif)">
+    SetHandler default-handler
+</LocationMatch>
+
+# DO NOT serve files with a .m extension and do not serve the
+# autohandlers and dhandlers that we have setup
+<LocationMatch "(\.m|dhandler|autohandler)$">
+    SetHandler perl-script
+    PerlInitHandler Apache::Constants::NOT_FOUND
+</LocationMatch>
+
+NameVirtualHost *
+
+<VirtualHost *>
+    ServerName $LifeWiki::DOMAIN
+    DocumentRoot $LifeWiki::DOCROOT
+    DefaultType text/html
+    SetHandler perl-script
+    PerlHandler LifeWiki::HTML
+</VirtualHost>
+    });
+
+    # and now, if we have a custom theme...
+    if ($LifeWiki::CUSTOM_THEME) {
+        Apache->httpd_conf(qq{
+<VirtualHost *>
+    ServerName $LifeWiki::THEMEDOMAIN
+    Options -Indexes
+    DocumentRoot $LifeWiki::CUSTOM_THEME
+    SetHandler default-handler
+</VirtualHost>
+        });
+    } else {
+        # fall back to default theme if the user didn't provide one
+        $LifeWiki::THEMEDOMAIN = $LifeWiki::DOMAIN;
+        $LifeWiki::THEMEROOT = "$LifeWiki::SITEROOT/theme";
+    }
+
     # now setup the authentication agent we want
     LifeWiki::setAuthAgent("LDAP", {
         server => 'ldap.sixapart.com',

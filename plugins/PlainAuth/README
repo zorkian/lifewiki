@@ -1,0 +1,8 @@
+The PlainAuth plugin provides a very basic set of authentication routines
+that enable users to create accounts that are local to the LifeWiki install
+and are not drawn from any other service.
+
+All account information is stored locally in the user table -- including
+passwords, which are stored plaintext.
+
+Plugin by Mark Smith; mark@plogs.net.

@@ -21,6 +21,14 @@
     $SITEROOT = "http://$DOMAIN";
     $SITEROOT .= ":$PORT" if $PORT != 80;
 
+    # this must be different than above -- but it doesn't have to actually
+    # work.  this must only be functional if you're using a custom theme that
+    # isn't installed in the root.  themes in the root function off of the
+    # standard SITEROOT above.  see the theme documentation for more info.
+    $THEMEDOMAIN = "theme.example.com";
+    $THEMEROOT = "http://$THEMEDOMAIN";
+    $THEMEROOT .= ":$PORT" if $PORT != 80;
+
     # setup database access
     %DBCONFIG = (
         host => 'localhost',

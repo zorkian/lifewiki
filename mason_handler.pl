@@ -48,8 +48,8 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
 
 # Create Mason object.
 my $ah = HTML::Mason::ApacheHandler->new(
-    comp_root           => '/home/mark/lifewiki/htdocs',
-    data_dir            => '/home/mark/lifewiki/mason',
+    comp_root           => "$ENV{LIFEWIKIHOME}/htdocs",
+    data_dir            => "$ENV{LIFEWIKIHOME}/mason",
     autohandler_name    => 'autohandler',
     dhandler_name       => 'dhandler',
     error_mode          => 'output',

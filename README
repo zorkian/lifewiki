@@ -6,6 +6,10 @@ that's irrelevant if it's never going to have public source release.
 If you're setting this up somewhere, the incantations that you should know
 to get your httpd.conf setup correctly are:
 
+# Basic setup of Apache
+DocumentRoot /home/xb95/lifewiki/htdocs
+DirectoryIndex index index.html
+
 # Basic setup that is used first, with clarifications below
 PerlModule HTML::Mason::ApacheHandler
 PerlSetEnv LIFEWIKIHOME /home/xb95/lifewiki

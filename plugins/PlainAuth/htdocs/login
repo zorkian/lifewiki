@@ -5,14 +5,6 @@
         return;
     }
 
-    unless (LifeWiki::Auth::canLoginManually()) {
-        my $url = LifeWiki::Auth::getLoginURL();
-        return $m->redirect($url) if $url;
-
-        print "<p>Error: this site does not support this style of login.  Please use the login link above.</p>";
-        return;
-    }
-
     if ($did_post) {
         my $args = $m->request_args;
 

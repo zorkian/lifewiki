@@ -1,8 +1,10 @@
-% $title = "Logout";
-
-destroying your login cookie...
+Thank you for your visit.
 
 <%perl>
+    $title = "Logout";
+
+    # not sure what the best way to do this is, so we just set it to expire and give
+    # it no content... seems to work just fine
     my $c = Apache::Cookie->new($r,
         -name => 'session',
         -value => '',
@@ -14,5 +16,3 @@ destroying your login cookie...
     # also ghetto; kill the remote object
     $remote = undef;
 </%perl>
-
-done

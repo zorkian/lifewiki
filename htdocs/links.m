@@ -8,7 +8,7 @@ user:
     <li><a href="/prefs" accesskey="u" title="User Preferences">Preferences</a></li>
     <li><a href="/logout" title="Logout">Logout</a> (<% $remote->getUsername %>)</li>
 % } else {
-    <li><a href="<% LifeWiki::Auth::getLoginURL() %>">Login</a></li>
+    <li><a href="/login">Login</a></li>
 % }
 
 </div></ul></div></div>

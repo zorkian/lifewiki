@@ -1,7 +1,6 @@
 <%args> $arg </%args>
 
 <%perl>
-
     $arg += 0;
     unless ($arg) {
         print "<p>You have reached this page in an invalid way.</p>";
@@ -24,6 +23,8 @@
     my $readsec = $nm->getReadSecurity;
     my $writesec = $nm->getWriteSecurity;
 </%perl>
+
+<div class='section'><h2>Namespace Information</h2>
 
 <table>
 
@@ -54,6 +55,82 @@
 
 <tr><td></td><td><input type='submit' value='Save Changes' <% $isadmin ? '' : 'disabled="disabled"' %> /></td></tr>
 
+</form></table></div>
+
+% if ($isadmin) {
+
+<div class='section'><h2>Namespace Access</h2>
+
+<form method='post' action='/admin/namespaces/revoke/<% $arg %>'>
+
+<h3>Administrators</h3>
+<p>
+<%perl>
+    foreach my $row (LifeWiki::getAccessList('admin_namespace', $arg)) {
+        my $u = LifeWiki::User->newFromUserid($row->[0]);
+        if ($u) {
+            my $un = $u->getUsername;
+            print " &nbsp; &nbsp; <input type='checkbox' id='an$un' name='admin_namespace:$un' value='1' /> " .
+                  "<label for='an$un'>" . $u->getNick . " ($un)</label><br />";
+        }
+    }
+</%perl>
+</p>
+
+<h3>Moderators</h3>
+<p>
+<%perl>
+    foreach my $row (LifeWiki::getAccessList('moderate_namespace', $arg)) {
+        my $u = LifeWiki::User->newFromUserid($row->[0]);
+        if ($u) {
+            my $un = $u->getUsername;
+            print " &nbsp; &nbsp; <input type='checkbox' id='mn$un' name='moderate_namespace:$un' value='1' /> " .
+                  "<label for='mn$un'>" . $u->getNick . " ($un)</label><br />";
+        }
+    }
+</%perl>
+</p>
+
+<h3>Readers</h3>
+<p>
+<%perl>
+    foreach my $row (LifeWiki::getAccessList('read_namespace', $arg)) {
+        my $u = LifeWiki::User->newFromUserid($row->[0]);
+        if ($u) {
+            my $un = $u->getUsername;
+            print " &nbsp; &nbsp; <input type='checkbox' id='rn$un' name='read_namespace:$un' value='1' /> " .
+                  "<label for='rn$un'>" . $u->getNick . " ($un)</label><br />";
+        }
+    }
+</%perl>
+</p>
+
+<h3>Revoke Access</h3>
+
+<p>If you checked anything above, use this button to revoke those particular
+access levels to this namespace.</p>
+
+<p><input type='submit' value='Revoke Access' /> (immediate!)</p>
+
+</form></div>
+
+<div class='section'>
+
+<h2>Grant Access</h2>
+
+<form method='post' action='/admin/namespaces/grant/<% $arg %>'>
+
+<p>Grant <select name='priv'>
+<option value='admin_namespace'>Administrator</option>
+<option value='moderate_namespace'>Moderator</option>
+<option value='read_namespace' selected>Reader</option>
+</select> level access to username
+<input type='text' name='user' size='12' />.</p>
+
+<p><input type='submit' value='Grant Access' /> (immediate!)</p>
+
 </form>
 
-</table>
+</div>
+
+% }

@@ -4,13 +4,16 @@
 </%perl>
 
 % if ($remote->can('create_namespaces')) {
+    <div class='section'>
     <h2>Create Namespace</h2>
     <form method='post' action='/admin/namespaces/create'>
     <input type="text" name="crname" /><input type="submit" value="Create Namespace" />
     </form>
+    </div>
 % }
 % return unless @ids;
 
+<div class='section'>
 <h2>Manage Namespaces</h2>
 
 <ul>
@@ -18,3 +21,4 @@
     <li><a href="/admin/namespaces/view/<% $id %>"><% LifeWiki::Namespace::getNamespaceName($id) %></a></li>
 % }
 </ul>
+</div>

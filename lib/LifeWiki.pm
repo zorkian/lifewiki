@@ -170,6 +170,31 @@ sub setTheme {
     $LifeWiki::CUSTOM_THEME_DIR = $root;
 }
 
+# given a privilege name and an optional extraid, return a list of userids for people
+# that have this access.  returns an array of arrayrefs, [ userid, extraid ].
+sub getAccessList {
+    my ($pname, $extra) = @_;
+
+    my $priv = $LifeWiki::PRIVILEGE_TABLE{$pname};
+    return () unless $priv;
+
+    $extra = undef unless $extra > 0;
+
+    my $dbh = LifeWiki::getDatabase();
+    return () unless $dbh;
+
+    my $rows;
+    if ($extra) {
+        $rows = $dbh->selectall_arrayref('SELECT userid, extraid FROM access WHERE privid = ? AND extraid = ?',
+                                         undef, $priv->{id}, $extra);
+    } else {
+        $rows = $dbh->selectall_arrayref('SELECT userid, extraid FROM access WHERE privid = ?',
+                                         undef, $priv->{id});
+    }
+    return () if $dbh->err;
+    return @$rows;
+}
+
 # also taken from LiveJournal
 sub rand_chars {
     my $length = shift;

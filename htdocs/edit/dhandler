@@ -1,51 +1,60 @@
 <%perl>
     unless ($remote) {
         $title = "Error";
-        print "You must be logged into use this page.";
+        print "<p>You must be logged into use this page.</p>";
         return;
     }
 
     my $arg = $m->dhandler_arg + 0;
     unless ($arg) {
         $title = "Error";
-        print "You have reached this page in an invalid way.";
+        print "<p>You have reached this page in an invalid way.</p>";
         return;
     }
 
     $page = LifeWiki::Page->newByPageId($arg);
     unless ($page) {
         $title = "Error";
-        print "That page is invalid.";
+        print "<p>That page is invalid.</p>";
         return;
     }
 
     unless ($page->isEditor($remote)) {
         $title = "Error";
-        print "You do not have the proper access to edit this page.";
+        print "<p>You do not have the proper access to edit this page.</p>";
         return;
     }
 
+    $title = "Edit Page: " . $page->getName;
+
+    my ($authorid, $author, $content);
     if ($did_post) {
         my $args = $m->request_args;
+        if ($args->{'action:save'}) {
+            unless ($page->setContent($remote, $args->{content})) {
+                $title = "Error";
+                print "<p>Unable to save content.</p>";
+                return;
+            }
 
-        unless ($page->setContent($remote, $args->{content})) {
-            $title = "Error";
-            print "Unable to save content.";
+            # redirect back to the page
+            return $m->redirect($LifeWiki::SITEROOT . "/" . $page->getURI);
+
+        } elsif ($args->{'action:preview'}) {
+            my $new = Markdown::Markdown($args->{content});
+            print "$new<hr />";
+            $content = LifeWiki::ehtml($args->{content});
+
+        } else {
+            print "<p>Option not understood.</p>";
             return;
         }
 
-        # redirect back to the page
-        return $m->redirect($LifeWiki::SITEROOT . "/" . $page->getURI);
-        $title = "Changes Saved";
-        print "Your changes have been saved!";
-        return;
+    } else {
+        # if we fall through, we didn't post
+        ($authorid, $content) = $page->getEscapedContent;
+        $author = LifeWiki::User->newFromUserid($authorid);
     }
-
-    # if we fall through, we didn't post
-    $title = "Edit Page: " . $page->getName;
-    my ($authorid, $content) = $page->getEscapedContent;
-    my $author = LifeWiki::User->newFromUserid($authorid);
-
 </%perl>
 
 <form method="post" action="<% $page->getEditURI %>">
@@ -53,7 +62,8 @@ Please edit the page below here:<br />
 
 <textarea name="content" rows="15" cols="80"><% $content %></textarea><br />
 
-<input type="submit" value="Save Changes">
+<input type="submit" name="action:save" value="Save" />
+<input type="submit" name="action:preview" value="Preview" />
 (or <a target="_new" href="http://daringfireball.net/projects/markdown/syntax">see Markdown syntax</a>)
 
 </form>

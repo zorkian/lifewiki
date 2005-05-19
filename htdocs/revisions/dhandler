@@ -62,7 +62,7 @@
             return;
         }
 
-        print "<table width='80%'>";
+        print "<table cellpadding='5'>";
         foreach my $row (@$info) {
             my ($rn, $auid, $revtime) = @$row;
             next unless $rn; #ignore creation revision

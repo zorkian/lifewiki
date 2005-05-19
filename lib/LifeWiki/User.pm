@@ -92,6 +92,11 @@ sub getNick {
     return $_[0]->{nickname};
 }
 
+sub getLinkedNick {
+    my $tmp = $_[0]->{nickname} || $_->[0]->{user};
+    return qq(<a href="/$_[0]->{user}">$tmp</a>);
+}
+
 sub newFromCookies {
     # need a database
     my $dbh = LifeWiki::getDatabase();

@@ -20,7 +20,7 @@
         return;
     }
 
-    print "<table width='80%'>";
+    print "<table cellpadding='5'>";
     foreach my $change (@$changes) {
         my ($pgid, $modtime) = @$change;
         my $page = LifeWiki::Page->newByPageId($pgid);

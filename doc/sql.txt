@@ -78,3 +78,14 @@ CREATE TABLE `searchdb` (
   FULLTEXT KEY `name` (`name`),
   FULLTEXT KEY `name_2` (`name`,`content`)
 ) TYPE=MyISAM;
+
+CREATE TABLE `comments` (
+  `cid` int(11) NOT NULL auto_increment,
+  `pgid` int(11) NOT NULL default '0',
+  `userid` int(11) NOT NULL default '0',
+  `posttime` int(11) NOT NULL default '0',
+  `content` text NOT NULL,
+  PRIMARY KEY  (`cid`),
+  KEY `pgid` (`pgid`),
+  KEY `userid` (`userid`)
+) TYPE=MyISAM;

@@ -14,7 +14,7 @@
         return;
     }
 
-    print "<table width='80%'>";
+    print "<table cellpadding='5'>";
     foreach my $change (@$changes) {
         my ($pgid, $authorid, $modtime) = @$change;
         my $page = LifeWiki::Page->newByPageId($pgid);
@@ -29,7 +29,7 @@
         }
         print "</td><td>";
         if ($u) {
-            print $u->getUsername;
+            print $u->getLinkedNick;
         } else {
             print "user not found";
         }

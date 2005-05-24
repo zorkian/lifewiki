@@ -1,0 +1,37 @@
+<%flags>
+    # the magical incantation to make this work
+    inherit => undef,
+</%flags>
+
+<%perl>
+
+    my $args = $m->request_args;
+    my $nos = Net::OpenID::Server->new(
+        public_key => $LifeWiki::Plugin::OpenIDServer::opts->{public_key},
+        private_key => $LifeWiki::Plugin::OpenIDServer::opts->{private_key},
+        args => $args,
+        get_user => sub { return $remote; },
+        is_identity => \&LifeWiki::Plugin::OpenIDServer::is_identity,
+        is_trusted => \&LifeWiki::Plugin::OpenIDServer::is_trusted,
+        setup_url => "$LifeWiki::SITEROOT/openid-setup",
+    );
+
+    my ($ctype, $page) = $nos->handle_page;
+    return "" unless $ctype && $page;
+
+    if ($ctype eq 'redirect') {
+        return $m->redirect($page);
+    } else {
+        # ignore anything done until now
+        $m->clear_buffer;
+
+        # now setup to send header and print page
+        $r->content_type($ctype);
+        $r->send_http_header;
+        $r->print($page);
+
+        # and abort as "ok"
+        return $m->abort(200);
+    }
+
+</%perl>

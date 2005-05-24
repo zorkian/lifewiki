@@ -133,12 +133,10 @@ sub runHook {
 # run a bunch of hooks and assemble the defined return values into an arrayref
 sub runHooks {
     my $name = shift;
-    print STDERR "entering runHooks $name\n";
     return undef unless $Hooks{$name} && @{$Hooks{$name}};
 
     my @ret;
     foreach my $hook (@{$Hooks{$name} || []}) {
-        print STDERR "$hook?\n";
         my $val = $hook->(@_);
         push @ret, $val if defined $val;
     }

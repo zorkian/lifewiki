@@ -3,6 +3,7 @@
 <head>
   <title><% $title %> - LifeWiki</title>
   <% $head %>
+  <% join('\n', @{ LifeWiki::runHooks('page_head_content') || [] }) %>
 </head>
 
 <body>

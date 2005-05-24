@@ -7,13 +7,13 @@
 
     my $args = $m->request_args;
     my $nos = Net::OpenID::Server->new(
-        public_key => $LifeWiki::Plugin::OpenIDServer::opts->{public_key},
-        private_key => $LifeWiki::Plugin::OpenIDServer::opts->{private_key},
+        public_key => $LifeWiki::Plugin::OpenIDServer::opts{public_key},
+        private_key => $LifeWiki::Plugin::OpenIDServer::opts{private_key},
         args => $args,
         get_user => sub { return $remote; },
         is_identity => \&LifeWiki::Plugin::OpenIDServer::is_identity,
         is_trusted => \&LifeWiki::Plugin::OpenIDServer::is_trusted,
-        setup_url => "$LifeWiki::SITEROOT/openid-setup",
+        setup_url => "$LifeWiki::SITEROOT/openid/setup",
     );
 
     my ($ctype, $page) = $nos->handle_page;

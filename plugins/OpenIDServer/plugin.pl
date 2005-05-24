@@ -19,6 +19,11 @@ sub init {
     die "Error: need private_key, public_key for OpenID server plugin\n"
         unless $opts{private_key} && $opts{public_key};
 
+    # set extra hook for dumping openid server information
+    LifeWiki::addHook('page_head_content', sub {
+        return qq{<link rel="openid.server" href="$LifeWiki::SITEROOT/openid/verify" />};
+    });
+
     # must return 1 to indicate that we're setup correctly
     return 1;
 }

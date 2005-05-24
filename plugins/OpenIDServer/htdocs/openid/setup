@@ -1,0 +1,5 @@
+<%perl>
+
+    print "Yeah, someday soon?";
+
+</%perl>

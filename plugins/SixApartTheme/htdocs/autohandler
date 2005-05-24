@@ -13,6 +13,7 @@
 
   <!-- extra page head content -->
   <% $head %>
+  <% join("\n", @{ LifeWiki::runHooks('page_head_content') || [] }) %>
   <!-- /end -->
 
   <link rel="stylesheet" type="text/css" href="<% $LifeWiki::THEMEROOT %>/theme.css" />

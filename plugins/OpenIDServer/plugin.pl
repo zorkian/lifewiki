@@ -34,7 +34,7 @@ sub is_identity {
 
     # this is probably unsafe, don't care right now -- just getting this working
     my $canon = "$LifeWiki::SITEROOT/" . $u->getUsername;
-    return 1 if $url =~ m!^$canon(?:$|/)!;
+    return 1 if $url =~ m/^$canon(?:\/.*)?$/;
     return 0;
 }
 

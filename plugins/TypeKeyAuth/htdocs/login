@@ -1,0 +1,11 @@
+<%perl>
+
+    # construct TypeKey login URL and return it
+    my $res= "https://www.typekey.com/t/typekey/login";
+    $res .= "?t=" . $LifeWiki::Plugin::TypeKeyAuth::opts{token};
+    $res .= "&need_email=1";
+    $res .= "&_return=" . $LifeWiki::SITEROOT . "/typekey";
+    $res .= "&v=1.1";
+    return $m->redirect($res);
+
+</%perl>

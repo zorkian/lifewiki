@@ -1,11 +1,11 @@
 <%perl>
     $title = "Login via TypeKey";
     if ($remote) {
-        print "You are already logged in.";
+        print "<p>You are already logged in.</p>";
         return;
     }
 
-    my $data = LifeWiki::Auth::tryVerify($r);
+    my $data = LifeWiki::Plugin::TypeKeyAuth::tryVerify($r);
     unless (defined $data) {
         # if it falls through, something failed
         print "<p>Error: please try visiting our login page again.</p>";

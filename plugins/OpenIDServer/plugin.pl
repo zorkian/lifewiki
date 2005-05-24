@@ -33,8 +33,8 @@ sub is_identity {
     return 0 unless $u;
 
     # this is probably unsafe, don't care right now -- just getting this working
-    my $canon = "$LifeWiki::SITEROOT/" . $u->getUsername . "/";
-    return 1 if $url =~ m!^$canon!;
+    my $canon = "$LifeWiki::SITEROOT/" . $u->getUsername;
+    return 1 if $url =~ m!^$canon(?:$|/)!;
     return 0;
 }
 

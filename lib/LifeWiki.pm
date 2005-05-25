@@ -81,6 +81,7 @@ sub clearErrors {
 }
 
 sub error {
+    print STDERR "(error) $_[0]\n";
     push @Errors, shift();
     return undef;
 }
@@ -231,6 +232,10 @@ sub rand_chars {
     my $length = shift;
     my $chal = "";
     my $digits = "abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWZYZ0123456789";
+
+    # perldoc -f srand; kinda
+    srand(time ^ $$);
+    
     for (1..$length) {
         $chal .= substr($digits, int(rand(62)), 1);
     }

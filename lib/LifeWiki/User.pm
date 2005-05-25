@@ -18,7 +18,7 @@ sub createAccount {
     my $class = shift();
 
     my %opts = ( @_ );
-    return undef unless $opts{username};
+    return undef unless $opts{username} || $opts{external};
 
     my $u = $class->newFromUser($opts{username});
     if ($u) {
@@ -39,6 +39,10 @@ sub createAccount {
     if ($opts{external}) {
         $dbh->do("INSERT INTO externalusers VALUES (?, 'U', ?)",
                  undef, $opts{external}, $userid);
+        return undef if $dbh->err;
+
+        $dbh->do("INSERT INTO externalusers VALUES (?, 'I', ?)",
+                 undef, $userid, $opts{external});
         return undef if $dbh->err;
 
         $u = $class->newFromExternal($opts{external});
@@ -117,6 +121,68 @@ sub getPassword {
 
 sub getUsername {
     return $_[0]->{user};
+}
+
+sub _canonicalize {
+    my $un = shift;
+    $un =~ s/^\s+//;
+    $un =~ s/\s+$//;
+    return $un
+        if $un =~ /^[\w\d_]{1,15}$/;
+    return undef;
+}
+
+sub _canonicalize_nick {
+    my $un = shift;
+    $un =~ s/^\s+//;
+    $un =~ s/\s+$//;
+    return undef
+        if $un =~ /[<>&]/;
+    return $un;
+}
+
+sub setUsername {
+    my $self = shift;
+    return LifeWiki::error('changing a username is not supported')
+        if $self->getUsername;
+
+    my $username = LifeWiki::User::_canonicalize(shift);
+    return LifeWiki::error('invalid username; must be 1-15 characters, numbers, or underscores')
+        unless $username;
+
+    my $u = LifeWiki::User->newFromUser($username);
+    return LifeWiki::error('username already in use; please try again')
+        if $u;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    $dbh->do("UPDATE user SET user = ? WHERE userid = ?",
+             undef, $username, $self->getUserid);
+    return LifeWiki::error($dbh->errstr) if $dbh->err;
+
+    $self->{user} = $username;
+
+    LifeWiki::Page->noteUserCreation($self);
+    return 1;
+}
+
+sub setNick {
+    my $self = shift;
+
+    my $username = LifeWiki::User::_canonicalize_nick(shift);
+    return LifeWiki::error('invalid nickname; must be 1-100 reasonable characters')
+        unless $username;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    $dbh->do("UPDATE user SET nickname = ? WHERE userid = ?",
+             undef, $username, $self->getUserid);
+    return LifeWiki::error($dbh->errstr) if $dbh->err;
+
+    $self->{nickname} = $username;
+    return 1;
 }
 
 sub getNick {

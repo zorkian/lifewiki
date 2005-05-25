@@ -36,7 +36,6 @@ sub getVerifyRedirectURL {
         delayed_return => 1,
         trust_root => "$LifeWiki::SITEROOT/",
     );
-    print STDERR "[$url]\n";
     return $url;
 }
 
@@ -44,7 +43,6 @@ sub tryVerify {
     my $args = shift;
 
     my $csr = Net::OpenID::Consumer->new;
-    print STDERR "[$args, $csr]\n";
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 
@@ -52,11 +50,9 @@ sub tryVerify {
     $csr->args($args);
 
     if (my $setup_url = $csr->user_setup_url(post_grant => 'return')) {
-        print STDERR "{$setup_url}\n";
         return $setup_url;
     } elsif (my $vident = $csr->verified_identity) {
         # FIXME: Net::OpenID::UserProfile would be useful here
-        print STDERR "{$vident, " . $vident->url . "}\n";
         return {
             name => undef,
             nick => undef,

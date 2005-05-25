@@ -365,19 +365,21 @@ sub isEditor {
     my $self = shift;
     my $remote = shift;
 
+    # unacknowledged accounts can't edit
+    return 0 unless $remote->getUsername;
+
     return _canEditNamespace($remote, $self->{_nmid});
 }
 
 sub noteUserCreation {
     my $class = shift;
     my $u = shift;
-    my $opts = shift;
     return undef unless $u;
 
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    my $namespace = $u->getUsername || $u->getUserid;
+    my $namespace = $u->getUsername;
     if (defined $namespace) {
         $dbh->do("INSERT INTO namespace (ownerid, name, readsec, writesec) VALUES (?, ?, ?, ?)",
                  undef, $u->getUserid, $namespace, 'public', 'secure');

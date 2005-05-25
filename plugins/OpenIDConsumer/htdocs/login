@@ -8,11 +8,15 @@
 
     if ($did_post) {
         # simply pass it along
-        my $args = $m->request_args;
-        my $url = LifeWiki::Plugin::OpenIDConsumer::getVerifyRedirectURL($args);
-        return LifeWiki::error('unable to determine OpenID verification URL')
-            unless $url;
-        return $m->redirect($url);
+        my $verify = sub {
+            my $args = $m->request_args;
+            my $url = LifeWiki::Plugin::OpenIDConsumer::getVerifyRedirectURL($args);
+            return LifeWiki::error('unable to determine OpenID verification URL')
+                unless $url;
+            $m->redirect($url);
+            return 1;
+        };
+        return if $verify->();
     }
 
 </%init>

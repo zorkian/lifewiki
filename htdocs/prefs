@@ -1,3 +1,59 @@
-% $title = "User Preferences";
+<%perl>
 
-Not implemented yet, sorry!
+    $title = "User Preferences";
+    unless ($remote) {
+        return $m->redirect("$LifeWiki::SITEROOT/login");
+    }
+
+    my $verify = sub {
+        my $args = $m->request_args;
+
+        if ($args->{username}) {
+            return LifeWiki::error('error setting username')
+                unless $remote->setUsername($args->{username});
+        } else {
+            return LifeWiki::error('you must enter a username to setup your account')
+                unless $remote->getUsername;
+        }
+
+        if ($args->{nickname} && $args->{nickname} ne $remote->getNick) {
+            return LifeWiki::error("unable to change your displayed name")
+                unless $remote->setNick($args->{nickname});
+        }
+
+        return LifeWiki::error('password changing not supported yet')
+            if $args->{pass1} || $args->{pass2};
+
+        return 1;
+    };
+
+    if ($did_post && $verify->()) {
+        print "<p>Your changes have been saved.</p>";
+        return;
+    }
+
+</%perl>
+
+<p>Please edit anything you'd like to change about yourself...</p>
+
+% LifeWiki::printErrors();
+
+<form method='post' action='/prefs'>
+<table>
+
+<tr><td>Username</td><td>
+% if ($remote->getUsername) {
+    <b><% $remote->getUsername %></b>
+% } else {
+    <input type='text' name='username' value='<% $remote->getUsername %>' /> (required)
+% }
+</td></tr>
+% if ($remote->getPassword) {
+<tr><td>Password</td><td><input type='password' name='pass1' value='' /></td></tr>
+<tr><td></td><td><input type='password' name='pass2' value='' /></td></tr>
+% }
+<tr><td>Display name</td><td><input type='text' name='nickname' value='<% $remote->getNick %>' /></td></tr>
+<tr><td></td><td><input type='submit' value="Save Changes" /></td></tr>
+
+</table>
+</form>

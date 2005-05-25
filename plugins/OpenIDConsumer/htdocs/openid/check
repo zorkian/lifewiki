@@ -1,47 +1,56 @@
 <%perl>
 
-    my $args = $m->request_args;
-    my $data = LifeWiki::Plugin::OpenIDConsumer::tryVerify($args);
-    if (ref $data eq 'HASH') {
-        # got a user data structure back; log this person in
-        print STDERR "$data->{name}\n";
-        my $u = LifeWiki::User->newFromUser($data->{name});
-        unless (defined $u) {
-            $u = LifeWiki::User->createAccount(
-                external => $data->{external},
-                username => undef,
-                password => undef,
-                nickname => undef,
-                email => undef,
+    my $verify = sub {
+        my $args = $m->request_args;
+        my $data = LifeWiki::Plugin::OpenIDConsumer::tryVerify($args);
+        if (ref $data eq 'HASH') {
+            # got a user data structure back; log this person in
+            my $u = LifeWiki::User->newFromExternal($data->{external});
+            unless (defined $u) {
+                $u = LifeWiki::User->createAccount(
+                    external => $data->{external},
+                    username => undef,
+                    password => undef,
+                    nickname => undef,
+                    email => undef,
+                );
+                return LifeWiki::error("unable to access your account; please try again later.")
+                    unless defined $u;
+            }
+
+            # must be good
+            my $sess = $u->generateSession;
+            return LifeWiki::error("unable to generate session")
+                unless $sess;
+            my $c = Apache::Cookie->new($r,
+                -name => 'session',
+                -value => $u->getUserid . ":" . $sess . ":",
+                -domain => $LifeWiki::DOMAIN,
+                -expires => '+1d',
             );
-            return LifeWiki::error("unable to access your account; please try again later.")
-                unless defined $u;
+            $c->bake;
+
+            # ghetto?
+            $remote = $u;
+
+            # redirect to preferences page
+            unless ($u->getUsername) {
+                $m->redirect("$LifeWiki::SITEROOT/prefs");
+            } else {
+                print "<p>You have been logged in.</p>";
+            }
+            return 1;
+
+        } elsif ($data) {
+            # got a redirect URL (true but not hash)
+            $m->redirect($data);
+            return 1;
+        } else {
+            return LifeWiki::error("failed verification");
         }
-        use Data::Dumper;
-        print STDERR Dumper($u);
+    };
 
-        # must be good
-        my $sess = $u->generateSession;
-        my $c = Apache::Cookie->new($r,
-            -name => 'session',
-            -value => $u->getUserid . ":" . $sess . ":",
-            -domain => $LifeWiki::DOMAIN,
-            -expires => '+1d',
-        );
-        $c->bake;
-
-        # ghetto?
-        $remote = $u;
-
-        print "<p>You have been successfully logged in.</p>";
-        return 1;
-
-    } elsif ($data) {
-        # got a redirect URL (true but not hash)
-        return $m->redirect($data);
-    } else {
-        return;
-    }
+    return if $verify->();
 
 </%perl>
 

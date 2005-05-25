@@ -47,7 +47,7 @@
         my $sess = $u->generateSession;
         my $c = Apache::Cookie->new($r,
             -name => 'session',
-            -value => $u->getUsername . ":" . $sess . ":",
+            -value => $u->getUserid . ":" . $sess . ":",
             -domain => $LifeWiki::DOMAIN,
             -expires => '+1d',
         );

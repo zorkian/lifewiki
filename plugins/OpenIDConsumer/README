@@ -1,0 +1,5 @@
+The OpenIDConsumer plugin is an auth plugin that enables the LifeWiki
+software to allow users to log in/create an account using their OpenID
+identities.
+
+Plugin by Mark Smith; mark@plogs.net.

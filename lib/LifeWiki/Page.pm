@@ -371,20 +371,25 @@ sub isEditor {
 sub noteUserCreation {
     my $class = shift;
     my $u = shift;
+    my $opts = shift;
+    return undef unless $u;
 
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    $dbh->do("INSERT INTO namespace (ownerid, name, readsec, writesec) VALUES (?, ?, ?, ?)",
-             undef, $u->getUserid, $u->getUsername, 'public', 'secure');
-    return undef if $dbh->err;
+    my $namespace = $u->getUsername || $u->getUserid;
+    if (defined $namespace) {
+        $dbh->do("INSERT INTO namespace (ownerid, name, readsec, writesec) VALUES (?, ?, ?, ?)",
+                 undef, $u->getUserid, $namespace, 'public', 'secure');
+        return undef if $dbh->err;
 
-    my $nmid = $dbh->{mysql_insertid};
-    return undef unless $nmid;
+        my $nmid = $dbh->{mysql_insertid};
+        return undef unless $nmid;
 
-    $dbh->do("INSERT INTO access (userid, privid, extraid) VALUES (?, ?, ?)",
-             undef, $u->getUserid, $LifeWiki::PRIVILEGE_TABLE{admin_namespace}->{id}, $nmid);
-    return undef if $dbh->err;
+        $dbh->do("INSERT INTO access (userid, privid, extraid) VALUES (?, ?, ?)",
+                 undef, $u->getUserid, $LifeWiki::PRIVILEGE_TABLE{admin_namespace}->{id}, $nmid);
+        return undef if $dbh->err;
+    }
 
     return 1;
 }

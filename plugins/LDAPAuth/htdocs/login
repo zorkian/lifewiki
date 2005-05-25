@@ -1,7 +1,7 @@
 <%perl>
     $title = "Login via LDAP";
     if ($remote) {
-        print "You are already logged in.";
+        print "<p>You are already logged in.</p>";
         return;
     }
 
@@ -25,7 +25,7 @@
         my $sess = $u->generateSession;
         my $c = Apache::Cookie->new($r,
             -name => 'session',
-            -value => $u->getUsername . ":" . $sess . ":",
+            -value => $u->getUserid . ":" . $sess . ":",
             -domain => $LifeWiki::DOMAIN,
             -expires => '+1d',
         );

@@ -30,9 +30,13 @@ sub init {
 
 sub is_identity {
     my ($u, $url) = @_;
-    return 0 unless $u;
+    return 0 unless $u && $url;
 
-    # this is probably unsafe, don't care right now -- just getting this working
+    # make sure it starts with our site location and then extract the namespace
+    return 0 unless $url =~ /^$LifeWiki::SITEROOT\/([^\/]+?)(?:\/.*)?$/;
+
+    # now load ... THIS IS BROKEN
+    # FIXME: check if $u is an editor of the namespace in $1 ?
     my $canon = "$LifeWiki::SITEROOT/" . $u->getUsername;
     return 1 if $url =~ m/^$canon(?:\/.*)?$/;
     return 0;

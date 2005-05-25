@@ -56,7 +56,7 @@ CREATE TABLE `sessions` (
 
 CREATE TABLE `user` (
   `userid` int(11) NOT NULL auto_increment,
-  `user` varchar(255) NOT NULL default '',
+  `user` varchar(255) default NULL,
   `password` varchar(25) default NULL,
   `email` varchar(255) default NULL,
   `nickname` varchar(255) default NULL,
@@ -88,4 +88,11 @@ CREATE TABLE `comments` (
   PRIMARY KEY  (`cid`),
   KEY `pgid` (`pgid`),
   KEY `userid` (`userid`)
+) TYPE=MyISAM;
+
+CREATE TABLE `externalusers` (
+  `extfrom` varchar(255) NOT NULL default '',
+  `exttype` char(1) NOT NULL default '',
+  `extto` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`extfrom`,`exttype`)
 ) TYPE=MyISAM;

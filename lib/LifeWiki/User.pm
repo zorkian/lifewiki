@@ -33,9 +33,40 @@ sub createAccount {
              undef, $opts{username}, $opts{password}, $opts{email}, $opts{nickname});
     return undef if $dbh->err;
 
-    $u = $class->newFromUser($opts{username});
-    LifeWiki::Page->noteUserCreation($u);
+    my $userid = $dbh->{mysql_insertid};
+    return undef unless $userid;
+
+    if ($opts{external}) {
+        $dbh->do("INSERT INTO externalusers VALUES (?, 'U', ?)",
+                 undef, $opts{external}, $userid);
+        return undef if $dbh->err;
+
+        $u = $class->newFromExternal($opts{external});
+    }
+
+    $u ||= $class->newFromUser($opts{username});
+    return undef unless $u;
+
+    LifeWiki::Page->noteUserCreation($u, \%opts);
     return $u;
+}
+
+sub newFromExternal {
+    my $class = shift;
+    my $ext = shift;
+
+    # make sure we have a database
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    # get the row from the database
+    my $userid = $dbh->selectrow_array('SELECT extto FROM externalusers WHERE extfrom = ? AND exttype = ?',
+                                       undef, $ext, 'U');
+    return undef if $dbh->err;
+    return undef unless $userid > 0;
+
+    # now with the userid we can return it
+    return $class->newFromUserid($userid);
 }
 
 sub newFromUser {
@@ -116,16 +147,16 @@ sub newFromCookies {
     $session = $session->value;
     return undef unless
         $session =~ /^(.+?):(.+?):(.*)$/;
-    my ($user, $unique, $opts) = ($1, $2, $3);
+    my ($userid, $unique, $opts) = ($1, $2, $3);
 
     # do some checking
     return undef unless
-        $user   =~ /^[\w\d_]{1,15}$/ &&
+        $userid =~ /^\d+$/ &&
         $unique =~ /^[\w\d]{1,36}$/  &&
         $opts   =~ /^[\w\d]*$/;
 
     # now we can hit up the database to load this user
-    my $self = $class->newFromUser($user)
+    my $self = $class->newFromUserid($userid)
         or return undef;
 
     # now see if the session they gave was good

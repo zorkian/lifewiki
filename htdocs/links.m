@@ -39,3 +39,12 @@ menu:
 % }
 
 </div></ul></div></div>
+
+  shortcuts:
+  <div id="toolbar_pane">
+    <ul>
+% foreach my $ns (LifeWiki::Namespace::getFrontpage()) {
+      <li><a href="<% $ns->getURI %>"><% $ns->getDescription %></a></li>
+% }
+    </ul>
+  </div>

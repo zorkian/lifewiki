@@ -26,9 +26,9 @@
         return;
     }
 
-    my $u = LifeWiki::User->newFromUser($user);
+    my $u = LifeWiki::User->newFromUserid($user);
     unless ($u) {
-        print "<p>The username you entered was invalid.</p>";
+        print "<p>The user id you entered was invalid.</p>";
         return;
     }
 

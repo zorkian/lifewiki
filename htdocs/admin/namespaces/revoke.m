@@ -19,7 +19,7 @@
         next unless $key =~ /^((?:admin|moderate|read)_namespace):(\w+)$/;
         my ($pname, $user) = ($1, $2);
 
-        my $u = LifeWiki::User->newFromUser($user);
+        my $u = LifeWiki::User->newFromUserid($user);
         next unless $u;
 
         # hah

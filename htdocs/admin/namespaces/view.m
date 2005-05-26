@@ -30,7 +30,7 @@
 
 <form method='post' action='/admin/namespaces/edit/<% $arg %>'>
 
-<tr><td><b>Owner:</b></td><td><% $u ? $u->getUsername : "...unknown..." %></td></tr>
+<tr><td><b>Owner:</b></td><td><% $u ? $u->getLinkedNick : "...unknown..." %></td></tr>
 
 <tr><td><b>Description:</b></td><td>
 <input type='text' name='description' value='<% $desc %>' <% $isadmin ? '' : 'disabled="disabled"' %> maxlength='60' />
@@ -69,7 +69,7 @@
     foreach my $row (LifeWiki::getAccessList('admin_namespace', $arg)) {
         my $u = LifeWiki::User->newFromUserid($row->[0]);
         if ($u) {
-            my $un = $u->getUsername;
+            my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='an$un' name='admin_namespace:$un' value='1' /> " .
                   "<label for='an$un'>" . $u->getNick . " ($un)</label><br />";
         }
@@ -83,7 +83,7 @@
     foreach my $row (LifeWiki::getAccessList('moderate_namespace', $arg)) {
         my $u = LifeWiki::User->newFromUserid($row->[0]);
         if ($u) {
-            my $un = $u->getUsername;
+            my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='mn$un' name='moderate_namespace:$un' value='1' /> " .
                   "<label for='mn$un'>" . $u->getNick . " ($un)</label><br />";
         }
@@ -97,7 +97,7 @@
     foreach my $row (LifeWiki::getAccessList('read_namespace', $arg)) {
         my $u = LifeWiki::User->newFromUserid($row->[0]);
         if ($u) {
-            my $un = $u->getUsername;
+            my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='rn$un' name='read_namespace:$un' value='1' /> " .
                   "<label for='rn$un'>" . $u->getNick . " ($un)</label><br />";
         }
@@ -124,7 +124,7 @@ access levels to this namespace.</p>
 <option value='admin_namespace'>Administrator</option>
 <option value='moderate_namespace'>Moderator</option>
 <option value='read_namespace' selected>Reader</option>
-</select> level access to username
+</select> level access to user id
 <input type='text' name='user' size='12' />.</p>
 
 <p><input type='submit' value='Grant Access' /> (immediate!)</p>

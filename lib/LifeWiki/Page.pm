@@ -317,8 +317,22 @@ sub getOutputContent {
             return "$pre<a class='newlink' href='$uri'>" . ($alt || $word) . "</a>";
         }
     };
-    $content =~ s/(^|.)(\[(?:(\w+):)?(\w+)(?:\s+([^\]]+?))?\])/$linkify->($1, $2, $3, $4, $5)/ges;
-    $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$linkify->($1, $2, $3, $4)/ges;
+
+    my $links;
+    my $push = sub { my $n = shift; push @$links, [ @_ ]; return $n; };
+    my $pop = sub { return $linkify->(@{ shift @$links }); };
+
+    my @temp1; $links = \@temp1;
+    $content =~ s/(^|.)(\{(?:(\w+):)?(\w+)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
+
+    my @temp2; $links = \@temp2;
+    $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;
+
+    $links = \@temp1;
+    $content =~ s/<temp1>/$pop->()/ges;
+
+    $links = \@temp2;
+    $content =~ s/<temp2>/$pop->()/ges;
 
     return ($authorid, Markdown::Markdown($content), $revtime);
 }
@@ -364,6 +378,7 @@ sub setContent {
 sub isEditor {
     my $self = shift;
     my $remote = shift;
+    return 0 unless $remote;
 
     # unacknowledged accounts can't edit
     return 0 unless $remote->getUsername;

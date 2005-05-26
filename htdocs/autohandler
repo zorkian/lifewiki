@@ -6,17 +6,54 @@
   <% join('\n', @{ LifeWiki::runHooks('page_head_content') || [] }) %>
 </head>
 
+<style type="text/css">
+
+/* page boundary */
+body {
+    font-family: Verdana, sans-serif;
+    font-size: small;
+    background-color: rgb(230,230,255);
+}
+
+/* ensure everybody inherits from us */
+table, p {
+    font-size: inherit;
+}
+
+/* table of contents box down the left */
+#toc {
+    border: solid 1px black;
+    background-color: rgb(220,220,220);
+    float: left;
+    margin: 10px;
+    padding: 5px;
+}
+
+#page {
+}
+
+#body {
+    height: 100%;
+    float: left;
+    min-width: 600px;
+    /*right: -10px;*/
+}
+
+</style>
+
 <body>
 
-<table style='border: solid 1px black; width: 100%;'>
-  <tr><td style='background-color: rgb(220,220,220); width: 150px;'>
-    <p><a href="/">[ LifeWiki ]</a></p>
-    <& links.m &>
-  </td><td valign='top'>
-    <h1><% $title %></h1>
-    <% $content %>
-  </td></tr>
-</table>
+<div id='page'>
+    <div id='toc'>
+        <a href="/">[ LifeWiki ]</a><br /><br />
+        <& links.m &>
+    </div>
+
+    <div id='body'>
+        <h1><% $title %></h1>
+        <% $content %>
+    </div>
+</div>
 
 </body>
 </html>

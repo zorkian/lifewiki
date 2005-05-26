@@ -17,6 +17,8 @@
 
 <ol>
 % foreach my $pg (@$pages) {
-    <li><a href="<% $pg->getURI %>"><% $pg->getName %></a></li>
+%   my $name = $pg->getName;
+%   $name = '' if $name eq 'default';
+    <li><a href="<% $pg->getURI %>"><% $pg->getNamespace %>/<% $name %></a></li>
 % }
 </ol>

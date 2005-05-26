@@ -306,10 +306,17 @@ sub getOutputContent {
 
     # now convert camel words to links
     my $linkify = sub {
-        my ($pre, $line, $owner, $word, $alt) = @_;
+        my ($pre, $line, $owner, $word, $alt, $force) = @_;
+        $word ||= 'default';
 
         # if preceeded by a \, ignore this wiki-word
         return $line if $pre eq '!';
+
+        # do not link words that are purely uppercase
+        if (! $force && (uc $word eq $word)) {
+            return "$pre$line" if $pre ne '!';
+            return $line;
+        }
 
         my $page = LifeWiki::Page->new($remote, $word, $owner ? $owner : $self->{_namespace});
         if ($page) {
@@ -327,7 +334,7 @@ sub getOutputContent {
         my $pop = sub { return $linkify->(@{ shift @$links }); };
 
         my @temp1; $links = \@temp1;
-        $content =~ s/(^|.)(\{(?:(\w+):)?(\w*)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
+        $content =~ s/(^|.)(\{(?:(\w+):)?(\w*)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5, 1)/ges;
 
         my @temp2; $links = \@temp2;
         $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;
@@ -402,8 +409,8 @@ sub setContent {
              undef, $self->{_pgid}, $remote->getUserid);
 
     # and update our search text
-    $dbh->do("UPDATE searchdb SET content = ? WHERE pgid = ?",
-             undef, $content, $self->{_pgid});
+    $dbh->do("REPLACE INTO searchdb (pgid, name, content) VALUES (?, ?, ?)",
+             undef, $self->{_pgid}, $self->{_name}, $content);
 
     # and now run the hook so people know this happened
     LifeWiki::runHooks('page_content_changed',

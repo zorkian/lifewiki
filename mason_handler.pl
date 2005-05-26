@@ -18,6 +18,8 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
     use Apache::Cookie;
     use Apache::DBI;
     use DBI;
+    use Cache::FileCache;
+    use HTML::TokeParser;
 
     # now bring in our modules
     use LifeWiki;

@@ -1,5 +1,9 @@
+% if ($remote) {
+You are <% $remote->getLinkedNick %>.<br /><br />
+% }
+
 user:
-<div id="toolbar_pane"><div class="toolbar"><ul><div class="toolbar">
+<ul>
 
 % if ($remote) {
 % if ($remote->hasHome) {
@@ -8,20 +12,16 @@ user:
     <li><a href="/admin" accesskey="a" title="Admin Pages">Administration</a></li>
     <li><a href="/recent" accesskey="r" title="Your Edits">Your Edits</a></li>
     <li><a href="/prefs" accesskey="u" title="User Preferences">Preferences</a></li>
-    <li><a href="/logout" title="Logout">Logout</a><br /><% $remote->getNick %></li>
+    <li><a href="/logout" title="Logout">Logout</a></li>
 % } else {
     <li><a href="/login">Login</a></li>
 % }
 
-</div></ul></div></div>
+</ul>
 
 menu: 
-<div id="toolbar_pane"><div class="toolbar"><ul><div class="toolbar">
 
-<form method="post" action="/search" enctype="application/x-www-form-urlencoded" style="display: inline">
-<input type="text" name="search_term" size="8" value="Search" onfocus="this.value=''" />
-<input type="hidden" name="action" value="search" />
-</form>
+<ul>
 
 <li><a href="/index" accesskey="h" title="Home Page">Home</a></li>
 <li><a href="/changes" accesskey="c" title="Recent Changes">Changes</a></li>
@@ -38,13 +38,20 @@ menu:
 %     }
 % }
 
-</div></ul></div></div>
+</ul>
 
   shortcuts:
-  <div id="toolbar_pane">
     <ul>
 % foreach my $ns (LifeWiki::Namespace::getFrontpage()) {
       <li><a href="<% $ns->getURI %>"><% $ns->getDescription %></a></li>
 % }
     </ul>
-  </div>
+
+search:
+ <form method="post" action="/search" enctype="application/x-www-form-urlencoded" style="display: inline">   
+<p>
+<input type="text" name="search_term" size="16" value="Search" onfocus="this.value=''" />
+<input type="hidden" name="action" value="search" />
+</p></form>
+
+

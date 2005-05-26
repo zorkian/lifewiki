@@ -24,16 +24,19 @@ sub init {
         my $nick = $u->getNick || $u->getUsername;
         return undef unless $nick;
 
-        my $extra = $u->getExternal;
-        if ($extra) {
-            $extra = qq{&nbsp;<a href="$extra"><img src="$LifeWiki::SITEROOT/images/openid/openid.gif" border="0" /></a>};
+        my $image = $u->getExternal;
+        if ($image) {
+            $image = qq{<a href="$image"><img src="$LifeWiki::SITEROOT/images/openid/openid.gif" style="vertical-align: bottom; border: 0;" alt="OpenID Identity" title="OpenID Identity" /></a>};
         }
+
         my $url = $u->getBioURL || $u->getHomeURL || $u->getExternal;
         if ($url) {
-            return qq{<a href="$url">$nick</a>$extra};
+            $url = qq{<a href="$url">$nick</a>};
         } else {
-            return qq{$nick$extra};
+            $url = "$nick";
         }
+
+        return qq{<span style="white-space: nowrap;">$image$url</span>};
     });
 
     # biography output link
@@ -97,6 +100,7 @@ sub tryAssociate {
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 
+    $csr->cache(Cache::FileCache->new);
     $csr->ua(LWPx::ParanoidAgent->new);
     $csr->args($args);
 
@@ -122,6 +126,7 @@ sub tryVerify {
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 
+    $csr->cache(Cache::FileCache->new);
     $csr->ua(LWPx::ParanoidAgent->new);
     $csr->args($args);
 

@@ -300,7 +300,7 @@ sub getOutputContent {
     my ($authorid, $content, $revtime) = $self->getContent($revnum);
 
     # escape HTML first
-    $content = LifeWiki::ehtml($content);
+#$content = LifeWiki::ehtml($content);
 
     # now convert camel words to links
     my $linkify = sub {
@@ -318,23 +318,61 @@ sub getOutputContent {
         }
     };
 
-    my $links;
-    my $push = sub { my $n = shift; push @$links, [ @_ ]; return $n; };
-    my $pop = sub { return $linkify->(@{ shift @$links }); };
+    my $dolinks = sub {
+        my $content = shift;
+        my $links;
+        my $push = sub { my $n = shift; push @$links, [ @_ ]; return $n; };
+        my $pop = sub { return $linkify->(@{ shift @$links }); };
 
-    my @temp1; $links = \@temp1;
-    $content =~ s/(^|.)(\{(?:(\w+):)?(\w+)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
+        my @temp1; $links = \@temp1;
+        $content =~ s/(^|.)(\{(?:(\w+):)?(\w+)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
 
-    my @temp2; $links = \@temp2;
-    $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;
+        my @temp2; $links = \@temp2;
+        $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;
 
-    $links = \@temp1;
-    $content =~ s/<temp1>/$pop->()/ges;
+        $links = \@temp1;
+        $content =~ s/<temp1>/$pop->()/ges;
 
-    $links = \@temp2;
-    $content =~ s/<temp2>/$pop->()/ges;
+        $links = \@temp2;
+        $content =~ s/<temp2>/$pop->()/ges;
+        return $content;
+    };
 
-    return ($authorid, Markdown::Markdown($content), $revtime);
+    $content = Markdown::Markdown($content);
+
+    use HTML::TokeParser;
+    my %open;
+    my %ac = map { $_ => 1 } qw(hr br img); # auto-close
+    my %nli = map { $_ => 1 } qw(a); # do not linkify while open
+    my $out;
+    my $p = HTML::TokeParser->new(\$content)
+        or die "can't create parser: $!";
+    while (my $token = $p->get_token) {
+        if ($token->[0] eq 'S') {
+            if ($ac{$token->[1]}) {
+                $out .= "<$token->[1] />";
+                next;
+            }
+            $open{$token->[1]}++;
+            $out .= "<$token->[1] ";
+            $out .= join(' ', map { $_ . '="' . $token->[2]->{$_} . '"' } @{$token->[3] || []});
+            $out .= ">";
+        } elsif ($token->[0] eq 'E') {
+            $open{$token->[1]}--;
+            $out .= "</$token->[1]>";
+        } elsif ($token->[0] eq 'T') {
+            my $dl = 1;
+            foreach my $tag (keys %nli) {
+                $dl = 0
+                    if $open{$tag};
+            }
+            $out .= $dl ? $dolinks->($token->[1]) : $token->[1];
+        } else {
+            print STDERR "OTHER: $token->[0], $token->[1]\n";
+        }
+    }
+
+    return ($authorid, $out, $revtime);
 }
 
 sub setContent {

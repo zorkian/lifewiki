@@ -13,12 +13,61 @@ sub init {
     # to search for files you've created
     LifeWiki::addComponentRoot('plugins/OpenIDConsumer/htdocs');
 
+    # now setup our images
+    LifeWiki::addImageDir('/images/openid', 'plugins/OpenIDConsumer/images');
+
+    # setup some hooks we add
+    LifeWiki::addHook('get_linked_user', sub {
+        my $u = shift;
+        return undef unless $u;
+
+        my $nick = $u->getNick || $u->getUsername;
+        return undef unless $nick;
+
+        my $extra = $u->getExternal;
+        if ($extra) {
+            $extra = qq{&nbsp;<a href="$extra"><img src="$LifeWiki::SITEROOT/images/openid/openid.gif" border="0" /></a>};
+        }
+        my $url = $u->getBioURL || $u->getHomeURL || $u->getExternal;
+        if ($url) {
+            return qq{<a href="$url">$nick</a>$extra};
+        } else {
+            return qq{$nick$extra};
+        }
+    });
+
+    # biography output link
+    LifeWiki::addHook('print_bio', sub {
+        my $u = shift;
+        return unless $u;
+
+        my $externals = $u->getAllExternals;
+        if ($externals && @$externals) {
+            print "<p>Verified <a href='http://www.openid.net/'>OpenID</a> identities this account is connected with:</p><ul>";
+            foreach my $ext (@$externals) {
+                print "<li><a href='$ext'>$ext</a></li>\n";
+            }
+            print "</ul>\n";
+        }
+    });
+
+    # extra page HTML we add
+    LifeWiki::addHook('print_extra_page_html', sub {
+        my ($page, $u) = @_;
+        return unless $page && $u;
+
+        if ($page eq 'prefs') {
+            print "<p><a href='$LifeWiki::SITEROOT/openid/add-identity'>Associate Another Identity</a></p>";
+        }
+    });
+
     # must return 1 to indicate that we're setup correctly
     return 1;
 }
 
 sub getVerifyRedirectURL {
     my $args = shift;
+    my $extra = "?assoc=1" if shift;
 
     my $csr = Net::OpenID::Consumer->new;
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
@@ -32,11 +81,38 @@ sub getVerifyRedirectURL {
         unless $cident;
 
     my $url = $cident->check_url(
-        return_to => "$LifeWiki::SITEROOT/openid/check",
+        return_to => "$LifeWiki::SITEROOT/openid/check$extra",
         delayed_return => 1,
         trust_root => "$LifeWiki::SITEROOT/",
     );
     return $url;
+}
+
+sub tryAssociate {
+    my ($remote, $args) = @_;
+    return LifeWiki::error("invalid arguments passed to tryAssociate")
+        unless $remote && $args;
+
+    my $csr = Net::OpenID::Consumer->new;
+    return LifeWiki::error('unable to create Net::OpenID::Consumer object')
+        unless $csr;
+
+    $csr->ua(LWPx::ParanoidAgent->new);
+    $csr->args($args);
+
+    if (my $setup_url = $csr->user_setup_url(post_grant => 'return')) {
+        return $setup_url;
+    } elsif (my $vident = $csr->verified_identity) {
+        my $url = $vident->url;
+        my $u = LifeWiki::User->newFromExternal($url);
+        return LifeWiki::error("the identity '$url' is already associated with another account")
+            if $u;
+        return LifeWiki::error('error adding identity in database')
+            unless $remote->addExternal($url);
+        return { success => 1, url => $url };
+    } else {
+        return LifeWiki::error('error validating identity: ' . $csr->err);
+    }
 }
 
 sub tryVerify {
@@ -55,7 +131,7 @@ sub tryVerify {
         # FIXME: Net::OpenID::UserProfile would be useful here
         return {
             name => undef,
-            nick => undef,
+            nick => $vident->display,
             password => undef,
             email => undef,
             external => $vident->url,

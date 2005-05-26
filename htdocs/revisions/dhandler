@@ -32,7 +32,7 @@
 
         my $u = LifeWiki::User->newFromUserid($authorid);
         if ($u) {
-            print "<p><small>Revision by " . $u->getUsername . " at $revtime.</small></p>";
+            print "<p><small>Revision by " . $u->getLinkedNick . " at $revtime.</small></p>";
         } else {
             print "<p><small>Revision by an unknown user at $revtime.</small></p>";
         }
@@ -70,7 +70,7 @@
             print "<tr><td><a href='/revisions/$pgid/$rn'>revision #$rn</a></td>";
             my $u = LifeWiki::User->newFromUserid($auid);
             if ($u) {
-                print "<td>" . $u->getUsername . "</td>";
+                print "<td>" . $u->getLinkedNick . "</td>";
             } else {
                 print "<td>unknown user</td>";
             }

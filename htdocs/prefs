@@ -9,11 +9,11 @@
         my $args = $m->request_args;
 
         if ($args->{username}) {
-            return LifeWiki::error('error setting username')
-                unless $remote->setUsername($args->{username});
+            return LifeWiki::error('error setting username');
+#unless $remote->setUsername($args->{username});
         } else {
-            return LifeWiki::error('you must enter a username to setup your account')
-                unless $remote->getUsername;
+#return LifeWiki::error('you must enter a username to setup your account')
+#unless $remote->getUsername;
         }
 
         if ($args->{nickname} && $args->{nickname} ne $remote->getNick) {
@@ -41,13 +41,13 @@
 <form method='post' action='/prefs'>
 <table>
 
-<tr><td>Username</td><td>
-% if ($remote->getUsername) {
-    <b><% $remote->getUsername %></b>
-% } else {
-    <input type='text' name='username' value='<% $remote->getUsername %>' /> (required)
-% }
-</td></tr>
+%#<tr><td>Username</td><td>
+%# if ($remote->getUsername) {
+%#    <b><% $remote->getUsername %></b>
+%# } else {
+%#    <input type='text' name='username' value='<% $remote->getUsername %>' /> (required)
+%# }
+%#</td></tr>
 % if ($remote->getPassword) {
 <tr><td>Password</td><td><input type='password' name='pass1' value='' /></td></tr>
 <tr><td></td><td><input type='password' name='pass2' value='' /></td></tr>
@@ -57,3 +57,5 @@
 
 </table>
 </form>
+
+% LifeWiki::runHooks('print_extra_page_html', 'prefs', $remote);

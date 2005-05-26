@@ -90,9 +90,9 @@ CREATE TABLE `comments` (
   KEY `userid` (`userid`)
 ) TYPE=MyISAM;
 
-CREATE TABLE `externalusers` (
+REATE TABLE `externalusers` (
   `extfrom` varchar(255) NOT NULL default '',
-  `exttype` char(1) NOT NULL default '',
-  `extto` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`extfrom`,`exttype`)
+  `userid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`extfrom`),
+  KEY `userid` (`userid`)
 ) TYPE=MyISAM;

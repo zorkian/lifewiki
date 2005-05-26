@@ -2,6 +2,27 @@
 
     my $verify = sub {
         my $args = $m->request_args;
+
+        if ($args->{assoc}) {
+            return LifeWiki::error("you wanted to associate an identity but you are no longer logged in")
+                unless $remote;
+            my $rv = LifeWiki::Plugin::OpenIDConsumer::tryAssociate($remote, $args);
+            if (ref $rv eq 'HASH') {
+                if ($rv->{success}) {
+                    print "<p>Your identity ($rv->{url}) has been associated with the logged in account.</p>";
+                    return 1;
+                } else {
+                    return LifeWiki::error('invalid hash from tryAssociate');
+                }
+            } elsif ($rv) {
+                # setup redirect
+                $m->redirect($rv);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
         my $data = LifeWiki::Plugin::OpenIDConsumer::tryVerify($args);
         if (ref $data eq 'HASH') {
             # got a user data structure back; log this person in
@@ -11,7 +32,7 @@
                     external => $data->{external},
                     username => undef,
                     password => undef,
-                    nickname => undef,
+                    nickname => $data->{nick},
                     email => undef,
                 );
                 return LifeWiki::error("unable to access your account; please try again later.")

@@ -1,0 +1,39 @@
+<%init>
+
+    $title = "Associate Identity";
+    unless ($remote) {
+        print "<p>You must be logged in to use this feature.</p>";
+        return;
+    }
+
+    if ($did_post) {
+        # simply pass it along
+        my $verify = sub {
+            my $args = $m->request_args;
+            my $url = LifeWiki::Plugin::OpenIDConsumer::getVerifyRedirectURL($args, 1);
+            return LifeWiki::error('unable to determine OpenID verification URL')
+                unless $url;
+            $m->redirect($url);
+            return 1;
+        };
+        return if $verify->();
+    }
+
+</%init>
+
+<p>You have chosen to associate another <a href='http://www.openid.net/'>OpenID</a> identity
+with your account here on this site.</p>
+
+<p>This action will let you log in to your account here with any of your OpenID identities.
+Simply fill out the following form and click the button to proceed.</p>
+
+% LifeWiki::printErrors();
+
+<form method="post" action="/openid/add-identity">
+<table>
+<tr><td>Identity URL:</td><td><input type='text' name='openid_url' id='openid_url' /></td></tr>
+<tr><td></td><td><input type="submit" value="Associate Identity"></td></tr>
+</table>
+</form>
+
+<p>Your Identity URL is provided by your OpenID server.  This may be your blog URL, for example.</p>

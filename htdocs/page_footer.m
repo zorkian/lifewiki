@@ -4,7 +4,7 @@
 <div style="background-color: #eee">
 <em>
 % if ($u) {
-    Last changed by <a href="/<% $u->getUsername %>"><% $u->getNick %></a> at <% $page->getRevTime %>.
+    Last changed by <% $u->getLinkedNick %> at <% $page->getRevTime %>.
 % } else {
     Last changed by some unknown user at <% $page->getRevTime %>.
 % }

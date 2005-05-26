@@ -2,11 +2,13 @@ user:
 <div id="toolbar_pane"><div class="toolbar"><ul><div class="toolbar">
 
 % if ($remote) {
-    <li><a href="/<% $remote->getUsername %>" title="Your Home">Your Home</a></li>
+% if ($remote->hasHome) {
+    <li><a href="/<% $remote->getHomeURL %>" title="Your Home">Your Home</a></li>
+% }
     <li><a href="/admin" accesskey="a" title="Admin Pages">Administration</a></li>
     <li><a href="/recent" accesskey="r" title="Your Edits">Your Edits</a></li>
     <li><a href="/prefs" accesskey="u" title="User Preferences">Preferences</a></li>
-    <li><a href="/logout" title="Logout">Logout</a> (<% $remote->getUsername %>)</li>
+    <li><a href="/logout" title="Logout">Logout</a></li>
 % } else {
     <li><a href="/login">Login</a></li>
 % }

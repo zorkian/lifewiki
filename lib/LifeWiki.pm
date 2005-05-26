@@ -12,6 +12,7 @@ our %Hooks = ();
 
 # component roots that plugins can modify
 our @COMPROOT = ();
+our @IMGDIR = ();
 
 # storage for temporary error messages
 our @Errors;
@@ -170,6 +171,16 @@ sub addComponentRoot {
     die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
 
     unshift @COMPROOT, [ scalar(@COMPROOT)+1 => $root ];
+}
+
+sub addImageDir {
+    my ($uri, $path) = @_;
+    my $root = "$ENV{LIFEWIKIHOME}/$path";
+    die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
+    die "Image path '$uri' not in proper format '/images/FOO'\n"
+        unless $uri =~ m!^/images/.+$!;
+
+    unshift @IMGDIR, [ $uri, $root ];
 }
 
 sub setTheme {

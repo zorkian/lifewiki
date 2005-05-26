@@ -37,12 +37,8 @@ sub createAccount {
     return undef unless $userid;
 
     if ($opts{external}) {
-        $dbh->do("INSERT INTO externalusers VALUES (?, 'U', ?)",
+        $dbh->do("INSERT INTO externalusers VALUES (?, ?)",
                  undef, $opts{external}, $userid);
-        return undef if $dbh->err;
-
-        $dbh->do("INSERT INTO externalusers VALUES (?, 'I', ?)",
-                 undef, $userid, $opts{external});
         return undef if $dbh->err;
 
         $u = $class->newFromExternal($opts{external});
@@ -64,8 +60,8 @@ sub newFromExternal {
     return undef unless $dbh;
 
     # get the row from the database
-    my $userid = $dbh->selectrow_array('SELECT extto FROM externalusers WHERE extfrom = ? AND exttype = ?',
-                                       undef, $ext, 'U');
+    my $userid = $dbh->selectrow_array('SELECT userid FROM externalusers WHERE extfrom = ?',
+                                       undef, $ext);
     return undef if $dbh->err;
     return undef unless $userid > 0;
 
@@ -108,11 +104,23 @@ sub newFromUserid {
     # copy things we know about
     $self->{$_} = $row->{$_}
         foreach keys %$row;
+
+    # now get other information
+    # FIXME: when the user has multiple identities associated, then what?
+    $self->{external} =
+        $dbh->selectrow_array('SELECT extfrom FROM externalusers WHERE userid = ?', undef, $userid);
+    return undef if $dbh->err;
+    
+    # return the final object
     return $self;
 }
 
 sub getUserid {
     return $_[0]->{userid};
+}
+
+sub getExternal {
+    return $_[0]->{external};
 }
 
 sub getPassword {
@@ -190,7 +198,13 @@ sub getNick {
 }
 
 sub getLinkedNick {
-    my $tmp = $_[0]->{nickname} || $_->[0]->{user};
+    my $self = shift;
+
+    my $res = LifeWiki::runHook('get_linked_user', $self);
+    return $res if defined $res;
+
+    # default
+    my $tmp = $self->{nickname} || $self->{user};
     return qq(<a href="/$_[0]->{user}">$tmp</a>);
 }
 
@@ -320,6 +334,46 @@ sub getAccessList {
     return undef if $dbh->err;
     return undef unless $ids && ref $ids eq 'ARRAY';
     return @$ids;
+}
+
+sub hasHome {
+    return 0;
+}
+
+sub getHomeURL {
+    # return link to the user's defined home
+    return undef;
+}
+
+sub getBioURL {
+    return "$LifeWiki::SITEROOT/bio/$_[0]->{userid}";
+}
+
+sub getAllExternals {
+    my $self = shift;
+    return undef unless $self;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    my $exts = $dbh->selectcol_arrayref('SELECT extfrom FROM externalusers WHERE userid = ?', undef, $self->getUserid);
+    return undef if $dbh->err;
+    return undef unless $exts;
+
+    return $exts;
+}
+
+sub addExternal {
+    my ($self, $ext) = @_;
+    return undef unless $self && $ext;
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    $dbh->do("INSERT INTO externalusers VALUES (?, ?)", undef, $ext, $self->getUserid);
+    return undef if $dbh->err;
+
+    return 1;
 }
 
 1;

@@ -77,6 +77,12 @@ DocumentRoot $LifeWiki::DOCROOT
     if ($LifeWiki::CUSTOM_THEME_DIR) {
         Apache->httpd_conf("Alias /theme $LifeWiki::CUSTOM_THEME_DIR");
     }
+
+    # now setup image aliases
+    if (@LifeWiki::IMGDIR) {
+        Apache->httpd_conf("Alias $_->[0] $_->[1]")
+            foreach @LifeWiki::IMGDIR;
+    }
 }
 
 # push onto the component root at the end

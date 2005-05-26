@@ -379,10 +379,6 @@ sub isEditor {
     my $self = shift;
     my $remote = shift;
     return 0 unless $remote;
-
-    # unacknowledged accounts can't edit
-    return 0 unless $remote->getUsername;
-
     return _canEditNamespace($remote, $self->{_nmid});
 }
 

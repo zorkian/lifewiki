@@ -1,0 +1,17 @@
+<%perl>
+    $title = "User Information";
+    my $arg = $m->dhandler_arg;
+    my $u = LifeWiki::User->newFromUserid($arg+0);
+    unless ($u) {
+        print "<p>User id not found.</p>";
+        return;
+    }
+</%perl>
+
+<p>User: <% $u->getLinkedNick %> (<% $u->getUserid %>)</p>
+
+% if ($u->hasHome) {
+<p><a href="<% $u->getHomeURL %>">Visit Home</a></p>
+% }
+
+% LifeWiki::runHooks('print_bio', $u, $remote);

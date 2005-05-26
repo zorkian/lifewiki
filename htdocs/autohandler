@@ -21,26 +21,27 @@ table, p {
 }
 
 /* table of contents box down the left */
-#toc {
+#toctd {
     border: solid 1px black;
     background-color: rgb(220,220,220);
-    float: left;
     margin: 10px 5px 0px 5px;
     padding: 5px;
+    width: 170px;
 }
 
 #page {
 }
 
-#body {
-    float: left;
-    min-width: 600px;
-    max-width: 80%;
+#bodytd {
     margin: 10px 10px 0px 5px;
     padding: 0px 10px 5px 5px;
-    outline: rgb(210,210,255) ridge thin;
+    border: solid 1px rgb(210,210,255);
     background-color: rgb(220,220,255);
-    /*right: -10px;*/
+    vertical-align: top;
+}
+
+#bodytable {
+    width: 95%;
 }
 
 h1 {
@@ -48,23 +49,27 @@ h1 {
     margin: 5px 0px 0px 0px;
 }
 
+.newlink {
+    color: rgb(255,0,0);
+}
+
+.link {
+
+}
+
 </style>
 
 <body>
 
-<div id='page'>
-    <div id='toc'>
+<table id='bodytable'>
+    <tr><td id='toctd'>
         <a href="/">[ LifeWiki ]</a><br /><br />
         <& links.m &>
-    </div>
-
-    <div id='body'>
+    </td><td id='bodytd'>
         <h1><% $title %></h1>
         <% $content %>
-    </div>
-
-    <div style='clear: both;'></div>
-</div>
+    </td></tr>
+</table>
 
 </body>
 </html>

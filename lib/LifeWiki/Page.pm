@@ -146,8 +146,9 @@ sub new {
         return undef;
     }
 
+    my $uripage = $page eq 'default' ? '' : $page;
     my $self = {
-        _uri => $namespace . '/' . $page,
+        _uri => $namespace . '/' . $uripage,
         _pgid => $pgid,
         _nmid => $nmid,
         _namespace => $namespace,
@@ -180,8 +181,9 @@ sub newByPageId {
     my $namespace = LifeWiki::Namespace::getNamespaceName($nmid);
     return undef unless $namespace;
 
+    my $uriname = $name eq 'default' ? '' : $name;
     my $self = {
-        _uri => $namespace . '/' . $name,
+        _uri => $namespace . '/' . $uriname,
         _pgid => $arg,
         _name => $name,
         _authorid => $authorid,
@@ -325,7 +327,7 @@ sub getOutputContent {
         my $pop = sub { return $linkify->(@{ shift @$links }); };
 
         my @temp1; $links = \@temp1;
-        $content =~ s/(^|.)(\{(?:(\w+):)?(\w+)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
+        $content =~ s/(^|.)(\{(?:(\w+):)?(\w*)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5)/ges;
 
         my @temp2; $links = \@temp2;
         $content =~ s/(^|.)((?:(\w+):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;

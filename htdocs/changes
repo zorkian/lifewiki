@@ -23,7 +23,9 @@
 
         print "<tr><td>";
         if ($page) {
-            print "<a href='" . $page->getURI . "'>" . $page->getNamespace . "/" . $page->getName . "</a>";
+            my $name = $page->getName;
+            $name = '' if $name eq 'default';
+            print "<a href='" . $page->getURI . "'>" . $page->getNamespace . "/$name</a>";
         } else {
             print "page not found";
         }

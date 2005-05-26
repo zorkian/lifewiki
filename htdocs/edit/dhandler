@@ -69,5 +69,5 @@ Please edit the page below here:<br />
 </form>
 
 % if ($author) {
-    <p>Last edited by <% $author->getUsername %>.</p>
+    <p>Last edited by <% $author->getLinkedNick %>.</p>
 % }

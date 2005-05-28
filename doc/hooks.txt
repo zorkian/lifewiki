@@ -1,0 +1,95 @@
+available hooks:
+
+can_edit_namespace
+can_read_namespace
+    SINGLE ($remote, $nmid): boolean
+    Called before all checks to see if a user is allowed to access any
+    namespaces.  Return 1 to allow the access, 0 to disallow.
+
+instantiated_page
+    MULTIPLE ($page)
+    Called after a LifeWiki::Page object has been loaded but before it is
+    returned to the caller.  You can make any changes to it you'd like,
+    add data, change data, etc.
+
+preparse_page_content
+postparse_page_content
+    SINGLE ($contentref): boolean
+    Called with a reference to the content of the page.  The 'preparse' version
+    is called before any Markdown/etc transformations are done.  If you return
+    a true value, we skip all parsing/formatting.  I.e., return 1 to stop
+    the Markdown transformation and stop the wiki-linking.  Note that you can
+    edit content in place via the reference and still return undef to make
+    us do Markdown and linking but also allow you to edit the page.
+
+    The 'postparse' hook is called after we've transformed and linked the
+    content.  It should be a valid HTML stream at that point.  You can edit
+    it in place, but the return value of your hook is ignored.
+
+page_content_changed
+    MULTIPLE ($page, $contentref, $remote)
+    Called when the content of a page has changed and has been saved to the
+    database.  Not much you can do about anything, this is more just a note
+    to say "hey, this has changed."
+
+is_editor
+    SINGLE ($page, $remote): boolean
+    Called when we're seeing if $remote is allowed to edit the content of
+    $page.  This is the highest level call, and normally just depends on what
+    namespace the page is in.  (See can_edit_namespace hook.)  If you return
+    a defined value, that value is used to determine if $remote is an editor
+    of $page.
+    
+account_created
+    MULTIPLE ($user)
+    Called when a user is created, after everything has been setup, but before
+    it is returned.  You can edit the object if you'd like.
+
+user_loaded
+    MULTIPLE ($user)
+    Called when a user object is loaded, but before it's returned.  You can
+    add things to the object or do whatever.
+    
+allow_nickname
+    SINGLE ($user, $nicknameref, $errref): boolean
+    When $user is trying to set their nickname (display name) to $nickname, this
+    is called.  If you return a defined value, that is used to determine if
+    the user is allowed to set the nickname or not.  You can set $errref if you
+    care to set a custom error message to the user.  You can also edit the
+    $nicknameref if you want to change what value gets put in the database.
+    
+nickname_changed
+    MULTIPLE ($user, $nickname)
+    Called after a user's nickname has changed.  Useful because this is called
+    with the canonicalized nickname that is actually going into the database,
+    so you can update other information if you want.
+
+get_linked_user
+    SINGLE ($user): string
+    Many parts of the site display an HTML version of a user.  This is the hook
+    that is called when we want to generate that.  If you want to generate your
+    own, just return it.
+    
+user_can
+    SINGLE ($user, $privname, $extraid): boolean
+    Called whenever we're checking if a user has a privilege on a given extraid.
+    The privilege is written in plain text, the extraid can be anything.
+
+revoke_privilege
+    SINGLE ($user, $privname, $extraid): boolean
+    When the revoke method is called on a user to revoke a privilege, this
+    hook is called.  Return a defined value to stop the normal handling of the
+    privilege.  This can be useful if you have a special privilege that isn't
+    handled with the normal database access level.
+    
+grant_privilege
+    SINGLE ($user, $privname, $extraid): boolean
+    Called when a privilege should be granted.  Return a defined value to stop
+    the normal grant process.
+
+get_access_list
+    SINGLE ($user, $privname): arrayref
+    Used to return a list of extraids that a user has $privname over.  You must
+    return an arrayref in order to stop the normal database work of accessing
+    the privilege list.
+

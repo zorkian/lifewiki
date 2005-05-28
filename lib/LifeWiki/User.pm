@@ -47,6 +47,8 @@ sub createAccount {
     $u ||= $class->newFromUser($opts{username});
     return undef unless $u;
 
+    LifeWiki::runHooks('account_created', $u);
+
     LifeWiki::Page->noteUserCreation($u, \%opts);
     return $u;
 }
@@ -70,22 +72,20 @@ sub newFromExternal {
 }
 
 sub newFromUser {
-    my $self = shift()->_new();
-    my $user = shift();
+    my $class = shift;
+    my $user = shift;
 
     # make sure we have a database
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    # get the row from the database
-    my $row = $dbh->selectrow_hashref('SELECT * FROM user WHERE user = ?', undef, $user);
+    # get the userid from the database
+    my $userid = $dbh->selectrow_array('SELECT userid FROM user WHERE user = ?', undef, $user);
     return undef if $dbh->err;
-    return undef unless $row && ref $row eq 'HASH';
+    return undef unless $userid > 0;
 
     # copy things we know about
-    $self->{$_} = $row->{$_}
-        foreach keys %$row;
-    return $self;
+    return $class->newFromUserid($userid);
 }
 
 sub newFromUserid {
@@ -110,6 +110,9 @@ sub newFromUserid {
     $self->{external} =
         $dbh->selectrow_array('SELECT extfrom FROM externalusers WHERE userid = ?', undef, $userid);
     return undef if $dbh->err;
+
+    # let any hooks know that this user has been loaded
+    LifeWiki::runHooks('user_loaded', $self);
     
     # return the final object
     return $self;
@@ -149,6 +152,8 @@ sub _canonicalize_nick {
     return $un;
 }
 
+# FIXME: this function should probably die; the functionality was poorly thought
+# out and doesn't really make much sense.
 sub setUsername {
     my $self = shift;
     return LifeWiki::error('changing a username is not supported')
@@ -177,19 +182,29 @@ sub setUsername {
 
 sub setNick {
     my $self = shift;
+    my $nick = shift;
 
-    my $username = LifeWiki::User::_canonicalize_nick(shift);
-    return LifeWiki::error('invalid nickname; must be 1-100 reasonable characters')
-        unless $username;
+    my $err = "nickname disallowed by custom plugin";
+    my $rv = LifeWiki::runHook('allow_nickname', $self, \$nick, \$err);
+    return LifeWiki::error($err)
+        if defined $rv && $rv;
+
+    unless (defined $rv) {
+        $nick = LifeWiki::User::_canonicalize_nick(shift);
+        return LifeWiki::error('invalid nickname; must be 1-100 reasonable characters')
+            unless $nick;
+    }
 
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
     $dbh->do("UPDATE user SET nickname = ? WHERE userid = ?",
-             undef, $username, $self->getUserid);
+             undef, $nick, $self->getUserid);
     return LifeWiki::error($dbh->errstr) if $dbh->err;
+    $self->{nickname} = $nick;
 
-    $self->{nickname} = $username;
+    LifeWiki::runHooks('nickname_changed', $self, $nick);
+
     return 1;
 }
 
@@ -233,7 +248,7 @@ sub newFromCookies {
     return undef unless
         $userid =~ /^\d+$/ &&
         $unique =~ /^[\w\d]{1,36}$/  &&
-        $opts   =~ /^[\w\d]*$/;
+        $opts   =~ /^.*$/;
 
     # now we can hit up the database to load this user
     my $self = $class->newFromUserid($userid)
@@ -263,6 +278,9 @@ sub can {
     my $self = shift;
     my ($privname, $extraid) = @_;
 
+    my $rv = LifeWiki::runHook('user_can', $self, $privname, $extraid);
+    return $rv if defined $rv;
+
     my $priv = $LifeWiki::PRIVILEGE_TABLE{$privname};
     die "No such privilege $privname\n" unless $priv;
 
@@ -281,6 +299,9 @@ sub can {
 sub revoke {
     my $self = shift;
     my ($privname, $extraid) = @_;
+
+    my $rv = LifeWiki::runHook('revoke_privilege', $self, $privname, $extraid);
+    return $rv if defined $rv;
 
     my $priv = $LifeWiki::PRIVILEGE_TABLE{$privname};
     die "No such privilege $privname\n" unless $priv;
@@ -301,6 +322,9 @@ sub grant {
     my $self = shift;
     my ($privname, $extraid) = @_;
 
+    my $rv = LifeWiki::runHook('grant_privilege', $self, $privname, $extraid);
+    return $rv if defined $rv;
+
     my $priv = $LifeWiki::PRIVILEGE_TABLE{$privname};
     die "No such privilege $privname\n" unless $priv;
 
@@ -319,6 +343,9 @@ sub grant {
 sub getAccessList {
     my $self = shift;
     my $privname = shift;
+
+    my $rv = LifeWiki::runHook('get_access_list', $self, $privname);
+    return @$rv if defined $rv && ref $rv && ref $rv eq 'ARRAY';
 
     my $priv = $LifeWiki::PRIVILEGE_TABLE{$privname};
     die "No such privilege $privname\n" unless $priv;

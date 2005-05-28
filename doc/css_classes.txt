@@ -1,0 +1,6 @@
+CSS classes:
+
+content_warning
+    Used on block level tags when they're being used at the top of a page to
+    show that there was some warning generated in the parser by the content
+    below.

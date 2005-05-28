@@ -26,6 +26,9 @@ sub _canEditNamespace {
     my ($remote, $nmid) = @_;
     return undef unless $remote && $nmid;
 
+    my $rv = LifeWiki::runHook('can_edit_namespace', $remote, $nmid);
+    return $rv if defined $rv;
+
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
@@ -43,6 +46,9 @@ sub _canEditNamespace {
 sub _canReadNamespace {
     my ($remote, $nmid) = @_;
     return undef unless $nmid;
+
+    my $rv = LifeWiki::runHook('can_read_namespace', $remote, $nmid);
+    return $rv if defined $rv;
 
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
@@ -158,6 +164,9 @@ sub new {
     };
     bless $self, $class;
 
+    # call a hook in case they want to edit us
+    LifeWiki::runHooks('instantiated_page', $self);
+
     # cache it
     $LifeWiki::CACHE_PAGE{"$nmid:$page"} = $self;
 
@@ -192,6 +201,8 @@ sub newByPageId {
         _nmid => $nmid,
     };
     bless $self, $class;
+
+    LifeWiki::runHooks('instantiated_page', $self);
 
     return $self;
 }
@@ -272,7 +283,8 @@ sub getContent {
     return undef unless $dbh;
 
     my ($authorid, $revtime, $content) = $dbh->selectrow_array
-        ('SELECT authorid, revtime, content FROM pagetext WHERE pgid = ? AND revnum = ?', undef, $self->{_pgid}, $rev);
+        ('SELECT authorid, revtime, content FROM pagetext WHERE pgid = ? AND revnum = ?',
+         undef, $self->{_pgid}, $rev);
     $revtime = LifeWiki::mysql_time($revtime);
     $self->{_revinfo}->{$rev} = [ $authorid, $content, $revtime ];
 
@@ -347,41 +359,73 @@ sub getOutputContent {
         return $content;
     };
 
-    $content = Markdown::Markdown($content);
-
-    use HTML::TokeParser;
-    my %open;
+    # setup our data for parsing
+    my (%open, $out);
     my %ac = map { $_ => 1 } qw(hr br img); # auto-close
     my %nli = map { $_ => 1 } qw(a); # do not linkify while open
-    my $out;
+
+    # let hooks preparse the content
+    my $rv = LifeWiki::runHook('preparse_page_content', \$content);
+    goto POSTPARSE if defined $rv && $rv;
+
+    # turn the content into markdown HTML first
+    $content = Markdown::Markdown($content);
     my $p = HTML::TokeParser->new(\$content)
         or die "can't create parser: $!";
+
+    # now parse the stream
     while (my $token = $p->get_token) {
         if ($token->[0] eq 'S') {
+            # start of an auto-close tag? if so, close and move on
             if ($ac{$token->[1]}) {
                 $out .= "<$token->[1] />";
                 next;
             }
+
+            # not an auto-closed tag, so mark it as open and then print it to the stream
+            # FIXME: the attributes may need to be escaped?
             $open{$token->[1]}++;
             $out .= "<$token->[1] ";
             $out .= join(' ', map { $_ . '="' . $token->[2]->{$_} . '"' } @{$token->[3] || []});
             $out .= ">";
+
         } elsif ($token->[0] eq 'E') {
+            # end of a tag, mark it closed and then close it
             $open{$token->[1]}--;
             $out .= "</$token->[1]>";
+
         } elsif ($token->[0] eq 'T') {
+            # text, we may need to activate links in it (dl == 1)
             my $dl = 1;
             foreach my $tag (keys %nli) {
                 $dl = 0
                     if $open{$tag};
             }
             $out .= $dl ? $dolinks->($token->[1]) : $token->[1];
+
         } else {
+            # bah, something else in the stream... comments or process instructions?
+            # we don't want to put them in the output (they probably don't matter anyway?)
             print STDERR "OTHER: $token->[0], $token->[1]\n";
         }
     }
 
-    return ($authorid, $out, $revtime);
+    # at this point, if we have some tags open or closed too many times, we should
+    # prepend the entry with a warning that the generated HTML appears invalid
+    if (%open) {
+        my $extra = "<p class='content_warning'>The following content has unclosed HTML tags: ";
+        $extra .= join(', ', map { "<strong>" . uc($_) . "</strong> ($open{$_} open)" } keys %open);
+        $extra .= "</p>\n\n";
+        $content = $extra . $content;
+    }
+
+    # now call the postparse hook
+POSTPARSE:
+    LifeWiki::runHook('postparse_page_content', \$content);
+
+    # return; must use $out first, but fall back to $content in case the preparse made
+    # us skip down to here
+    return ($authorid, $out || $content, $revtime);
 }
 
 sub setContent {
@@ -413,11 +457,7 @@ sub setContent {
              undef, $self->{_pgid}, $self->{_name}, $content);
 
     # and now run the hook so people know this happened
-    LifeWiki::runHooks('page_content_changed',
-        page => $self,
-        remote => $remote,
-        content => $content,
-    );
+    LifeWiki::runHooks('page_content_changed', $self, \$content, $remote);
 
     return 1;
 }
@@ -425,10 +465,17 @@ sub setContent {
 sub isEditor {
     my $self = shift;
     my $remote = shift;
+
+    my $rv = LifeWiki::runHook('is_editor', $self, $remote);
+    return $rv if defined $rv;
+
     return 0 unless $remote;
     return _canEditNamespace($remote, $self->{_nmid});
 }
 
+# FIXME: I would like this function to be called allocateNamespace or something
+# and not have it tied to user creation.  Then it would be moved into LifeWiki::Namespace,
+# but that doesn't exist yet.
 sub noteUserCreation {
     my $class = shift;
     my $u = shift;
@@ -473,7 +520,8 @@ sub getRevisionInfo {
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    my $res = $dbh->selectall_arrayref('SELECT revnum, authorid, revtime FROM pagetext WHERE pgid = ?', undef, $self->{_pgid});
+    my $res = $dbh->selectall_arrayref('SELECT revnum, authorid, revtime FROM pagetext WHERE pgid = ?',
+                                       undef, $self->{_pgid});
     return undef if $dbh->err;
 
     $_->[2] = LifeWiki::mysql_time($_->[2])

@@ -70,6 +70,13 @@ CREATE TABLE `pagetextcache` (
   PRIMARY KEY  (`pgid`)
 ) TYPE=MyISAM;
 
+CREATE TABLE `pagelinks` (
+  `pgid` INT(11) NOT NULL default '0',
+  `linkpgid` INT(11) NOT NULL default '0',
+  PRIMARY KEY (`pgid`, `linkpgid`),
+  KEY (`linkpgid`)
+) TYPE=MyISAM;
+
 CREATE TABLE `searchdb` (
   `pgid` int(11) NOT NULL default '0',
   `name` varchar(255) NOT NULL default '',

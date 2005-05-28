@@ -361,7 +361,7 @@ sub getOutputContent {
 
     # setup our data for parsing
     my (%open, $out, $extra);
-    my %ac = map { $_ => 1 } qw(hr br img); # auto-close
+    my %ac = map { $_ => 1 } qw(hr br img input); # auto-close
     my %nli = map { $_ => 1 } qw(a); # do not linkify while open
 
     # let hooks preparse the content
@@ -391,7 +391,7 @@ sub getOutputContent {
 
         } elsif ($token->[0] eq 'E') {
             # end of a tag, mark it closed and then close it
-            $open{$token->[1]}--;
+            delete $open{$token->[1]} unless --$open{$token->[1]};
             $out .= "</$token->[1]>";
 
         } elsif ($token->[0] eq 'T') {

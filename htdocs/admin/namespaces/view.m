@@ -71,7 +71,7 @@
         if ($u) {
             my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='an$un' name='admin_namespace:$un' value='1' /> " .
-                  "<label for='an$un'>" . $u->getNick . " ($un)</label><br />";
+                  "<label for='an$un'>" . $u->getLinkedNick . " ($un)</label><br />";
         }
     }
 </%perl>
@@ -85,7 +85,7 @@
         if ($u) {
             my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='mn$un' name='moderate_namespace:$un' value='1' /> " .
-                  "<label for='mn$un'>" . $u->getNick . " ($un)</label><br />";
+                  "<label for='mn$un'>" . $u->getLinkedNick . " ($un)</label><br />";
         }
     }
 </%perl>
@@ -99,7 +99,7 @@
         if ($u) {
             my $un = $u->getUserid;
             print " &nbsp; &nbsp; <input type='checkbox' id='rn$un' name='read_namespace:$un' value='1' /> " .
-                  "<label for='rn$un'>" . $u->getNick . " ($un)</label><br />";
+                  "<label for='rn$un'>" . $u->getLinkedNick . " ($un)</label><br />";
         }
     }
 </%perl>

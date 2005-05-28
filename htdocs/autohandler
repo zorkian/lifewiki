@@ -16,6 +16,14 @@ body {
     background-color: rgb(230,230,255);
 }
 
+.content_warning {
+    border: solid 1px black;
+    padding: 2px;
+    margin: 5px;
+    text-align: center;
+    background-color: rgb(255,240,240);       
+}
+
 /* ensure everybody inherits from us */
 table, p {
     font-size: inherit;

@@ -360,7 +360,7 @@ sub getOutputContent {
     };
 
     # setup our data for parsing
-    my (%open, $out);
+    my (%open, $out, $extra);
     my %ac = map { $_ => 1 } qw(hr br img); # auto-close
     my %nli = map { $_ => 1 } qw(a); # do not linkify while open
 
@@ -413,10 +413,9 @@ sub getOutputContent {
     # at this point, if we have some tags open or closed too many times, we should
     # prepend the entry with a warning that the generated HTML appears invalid
     if (%open) {
-        my $extra = "<p class='content_warning'>The following content has unclosed HTML tags: ";
+        $extra = "<p class='content_warning'>The following content has unclosed HTML tags: ";
         $extra .= join(', ', map { "<strong>" . uc($_) . "</strong> ($open{$_} open)" } keys %open);
         $extra .= "</p>\n\n";
-        $content = $extra . $content;
     }
 
     # now call the postparse hook
@@ -425,7 +424,7 @@ POSTPARSE:
 
     # return; must use $out first, but fall back to $content in case the preparse made
     # us skip down to here
-    return ($authorid, $out || $content, $revtime);
+    return ($authorid, $extra . ($out || $content), $revtime);
 }
 
 sub setContent {

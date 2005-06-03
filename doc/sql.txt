@@ -97,7 +97,7 @@ CREATE TABLE `comments` (
   KEY `userid` (`userid`)
 ) TYPE=MyISAM;
 
-REATE TABLE `externalusers` (
+CREATE TABLE `externalusers` (
   `extfrom` varchar(255) NOT NULL default '',
   `userid` int(11) NOT NULL default '0',
   PRIMARY KEY  (`extfrom`),

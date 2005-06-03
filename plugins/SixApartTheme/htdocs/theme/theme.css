@@ -71,6 +71,14 @@
 	margin-bottom: 10px;
 }
 
+.box {
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(170, 170, 170);
+	margin-bottom: 10px;
+    padding-left: 10px;
+}
+
 .favorites_pane,
 #toolbar_pane {
 	padding-left: 10px;

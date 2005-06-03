@@ -1,8 +1,11 @@
 % if ($remote) {
-You are <% $remote->getLinkedNick %>.<br /><br />
+<div class='box'>
+You are <% $remote->getLinkedNick %>.
+</div>
 % }
 
 user:
+<div class='box'>
 <ul>
 
 % if ($remote) {
@@ -18,40 +21,30 @@ user:
 % }
 
 </ul>
+</div>
 
 menu: 
-
+<div class='box'>
 <ul>
 
 <li><a href="/index" accesskey="h" title="Home Page">Home</a></li>
-<li><a href="/changes" accesskey="c" title="Recent Changes">Changes</a></li>
-
-% if ($page) {
-%     if ($page->isEditor($remote)) {
-        <li><a href="<% $page->getEditURI %>" accesskey="e" title="Edit This Page">Edit</a></li>
-%     }
-%     if ($remote) {
-        <li><a href="<% $page->getRevisionsURI %>" accesskey="r" title="Previous Revision">Revision <% $page->getRevNum %></a></li>
-        <li><a href="<% $page->getDiffURI %>" title="Colored Differences to Last Version">Show Changes</a></li>
-%     } else {
-        <li>Revision <% $page->getRevNum %></li>
-%     }
-% }
+<li><a href="/changes" accesskey="c" title="Recent Changes">Recent Changes</a></li>
 
 </ul>
+</div>
 
   shortcuts:
+<div class='box'>
     <ul>
 % foreach my $ns (LifeWiki::Namespace::getFrontpage()) {
       <li><a href="<% $ns->getURI %>"><% $ns->getDescription %></a></li>
 % }
     </ul>
+</div>
 
-search:
- <form method="post" action="/search" enctype="application/x-www-form-urlencoded" style="display: inline">   
+<form method="post" action="/search" enctype="application/x-www-form-urlencoded" style="display: inline">   
 <p>
 <input type="text" name="search_term" size="16" value="Search" onfocus="this.value=''" />
 <input type="hidden" name="action" value="search" />
 </p></form>
-
 

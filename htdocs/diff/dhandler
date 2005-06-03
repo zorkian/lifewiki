@@ -38,6 +38,13 @@ EOC
         return;
     }
 
+    # if the page has no changes...
+    if ($page->getRevNum <= 1) {
+        $title = "Error";
+        print "<p>That page has not had any changes to show the differences of.</p>";
+        return;
+    }
+
     # constrain revision numbers
     $to ||= $page->getRevNum;
     if ($to < 2 || $to > $page->getRevNum) {
@@ -58,13 +65,12 @@ EOC
 
     # get the contents
     my $content_from = ($page->getOutputContent($remote, $from))[1];
-    my $content_to = ($page->getOutputContent($remote, $to))[1];
+    my ($authorid, $content_to, $revtime) = $page->getOutputContent($remote, $to);
+    my $author = LifeWiki::User->newFromUserid($authorid);
 
     # now do the diff
-    use HTML::Diff;
-    my $res = html_word_diff($content_from, $content_to);
+    my $res = HTML::Diff::html_word_diff($content_from, $content_to);
 
-    use HTML::TokeParser;
     my $x;
     my $out = sub {
         my ($text, $col) = @_;
@@ -134,7 +140,14 @@ EOC
     }
     print $x;
 
+    if ($author) {
+        print "<p><small>Revision by " . $author->getLinkedNick . " at $revtime.</small></p>";
+    } else {
+        print "<p><small>Revision by an unknown user at $revtime.</small></p>";
+    }
+
     # add links for next change set
+    print "<p>";
     if ($from > 1) {
         my $uri = $page->getDiffURI($from-1, $from);
         print "[ <a href='$uri'>&lt;&lt; Previous Change</a> ]";
@@ -148,5 +161,6 @@ EOC
     } else {
         print "[ >> Next Change ]";
     }
+    print "</p>";
 
 </%perl>

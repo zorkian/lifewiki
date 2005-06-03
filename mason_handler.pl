@@ -5,11 +5,11 @@ package LifeWiki::HTML;
 use strict;
 use lib "$ENV{LIFEWIKIHOME}/lib";
 
-use HTML::Mason::ApacheHandler;
-use Apache::Request;
-
 # import our configuration from the user
 require "$ENV{LIFEWIKIHOME}/etc/config.pl";
+
+use HTML::Mason::ApacheHandler;
+use Apache::Request;
 
 {
     package HTML::Mason::Commands;
@@ -20,6 +20,7 @@ require "$ENV{LIFEWIKIHOME}/etc/config.pl";
     use DBI;
     use Cache::FileCache;
     use HTML::TokeParser;
+    use HTML::Diff;
 
     # now bring in our modules
     use LifeWiki;

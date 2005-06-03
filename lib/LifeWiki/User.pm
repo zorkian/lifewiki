@@ -220,7 +220,7 @@ sub getLinkedNick {
 
     # default
     my $tmp = $self->{nickname} || $self->{user};
-    return qq(<a href="/$_[0]->{user}">$tmp</a>);
+    return qq(<a href="/$self->{user}">$tmp</a>);
 }
 
 sub newFromCookies {

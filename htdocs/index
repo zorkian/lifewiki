@@ -18,6 +18,12 @@
     # now dump the page
     $title = $page->getName;
     my $content = ($page->getOutputContent($remote))[1];
+
+    # strip out a title set
+    if ($content =~ s/^<p.*?>\$(.+?)<\/p>//) {
+        $title = $1;
+    }
+
     print $content;
 </%init>
 

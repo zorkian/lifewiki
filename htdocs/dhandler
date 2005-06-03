@@ -30,8 +30,16 @@
     # now set the title and print the body
     $title = $page->getName;
     my $content = ($page->getOutputContent($remote))[1];
-    print $content;
+
+    # strip out a title set
+    if ($content =~ s/^<p.*?>\$(.+?)<\/p>//) {
+        $title = $1;
+    }
+
+    # calculate the page footer
+    my $val = $m->scomp('/page_footer.m');
+
+    # footer, content, footer
+    print "$val$content$val";
 
 </%init>
-
-<& page_footer.m &>

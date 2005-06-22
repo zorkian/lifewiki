@@ -1,0 +1,78 @@
+<%init>
+    # call ourselves
+    my $url = $r->uri;
+    my $content = $m->scomp($m->fetch_next);
+</%init>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>LifeWiki.net - <% $title %></title>
+
+        <!-- extra page head content -->
+        <% $head %>
+        <% join("\n", @{ LifeWiki::runHooks('page_head_content') || [] }) %>
+        <!-- /end -->
+
+        <style type="text/css">
+            @import url(test.css);
+        </style>
+    </head>
+
+    <body>
+
+        <div id='page'>
+            <div id='header'>
+                <div id='logo' class='left'>
+                    [ LifeWiki.net ]
+                </div>
+                <div id='title' class='right'>
+                    <% $title %>
+                </div>
+                <div class='clear'></div>
+            </div>
+            <div id='infobar'>
+                <div class='left'>
+                </div>
+                <div class='right'>
+                    12:35:43 January 5, 2004
+                </div>
+                <div class='clear'></div>
+            </div>
+            <table id='bodytable' cellspacing='0'>
+                <tr>
+                    <td id='toc'>
+                        <& links.m &>
+                        <& shortcuts.m &>
+                    </td>
+                    <td>
+                        &nbsp;&nbsp;
+                    </td>
+                    <td id='body'>
+                        <% $content %>
+                        <div id='control_bar'>
+                            <div class='left'>
+                                Last edited by Mark Smith, blah blah blah.
+                            </div>
+                            <div class='right'>
+                            </div>
+                            <div class='clear'></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class='clear'></div>
+            <div id='footer'>
+                <div class='right'>
+                    [<strong>Edit</strong>] [<strong>Revisions</strong>]
+                </div>
+                <div class='clear'></div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

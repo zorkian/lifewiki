@@ -190,7 +190,7 @@ sub setNick {
         if defined $rv && $rv;
 
     unless (defined $rv) {
-        $nick = LifeWiki::User::_canonicalize_nick(shift);
+        $nick = LifeWiki::User::_canonicalize_nick($nick);
         return LifeWiki::error('invalid nickname; must be 1-100 reasonable characters')
             unless $nick;
     }

@@ -376,17 +376,19 @@ sub getOutputContent {
     # now parse the stream
     while (my $token = $p->get_token) {
         if ($token->[0] eq 'S') {
+            # print out beginning
+            # FIXME: the attributes may need to be escaped?
+            $out .= "<$token->[1] ";
+            $out .= join(' ', map { $_ . '="' . $token->[2]->{$_} . '"' } @{$token->[3] || []});
+
             # start of an auto-close tag? if so, close and move on
             if ($ac{$token->[1]}) {
-                $out .= "<$token->[1] />";
+                $out .= "/>";
                 next;
             }
 
             # not an auto-closed tag, so mark it as open and then print it to the stream
-            # FIXME: the attributes may need to be escaped?
             $open{$token->[1]}++;
-            $out .= "<$token->[1] ";
-            $out .= join(' ', map { $_ . '="' . $token->[2]->{$_} . '"' } @{$token->[3] || []});
             $out .= ">";
 
         } elsif ($token->[0] eq 'E') {

@@ -6,9 +6,16 @@ use strict;
 use Net::OpenID::Consumer;
 use LWPx::ParanoidAgent;
 
+# setup options we'll use
+our %opts;
+
 # the init function is called as soon as a plugin is loaded.  you can do any
 # initialization stuff you'd like to do here.
 sub init {
+    %opts = %{ shift() || {} };
+    die "Need consumer_secret passed to OpenIDConsumer plugin\n"
+        unless $opts{consumer_secret};
+
     # adding a component root enables the Mason backend that LifeWiki runs on
     # to search for files you've created
     LifeWiki::addComponentRoot('plugins/OpenIDConsumer/htdocs');
@@ -72,7 +79,7 @@ sub getVerifyRedirectURL {
     my $args = shift;
     my $extra = "?assoc=1" if shift;
 
-    my $csr = Net::OpenID::Consumer->new;
+    my $csr = Net::OpenID::Consumer->new( consumer_secret => $opts{consumer_secret} );
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 
@@ -96,7 +103,7 @@ sub tryAssociate {
     return LifeWiki::error("invalid arguments passed to tryAssociate")
         unless $remote && $args;
 
-    my $csr = Net::OpenID::Consumer->new;
+    my $csr = Net::OpenID::Consumer->new( consumer_secret => $opts{consumer_secret} );
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 
@@ -122,7 +129,7 @@ sub tryAssociate {
 sub tryVerify {
     my $args = shift;
 
-    my $csr = Net::OpenID::Consumer->new;
+    my $csr = Net::OpenID::Consumer->new( consumer_secret => $opts{consumer_secret} );
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')
         unless $csr;
 

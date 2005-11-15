@@ -1,0 +1,60 @@
+<%init>
+    # call ourselves
+    my $url = $r->uri;
+    my $content = $m->scomp($m->fetch_next);
+</%init>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title><% $title %> - LifeWiki</title>
+
+  <!-- extra page head content -->
+  <% $head %>
+  <% join("\n", @{ LifeWiki::runHooks('page_head_content') || [] }) %>
+  <!-- /end -->
+
+  <link rel="stylesheet" type="text/css" href="<% $LifeWiki::THEMEROOT %>/theme.css" />
+
+  <link rel="shortcut icon" href="" />
+  <link rel="start" href="index" title="Home" />
+
+</head>
+<body>
+
+<div id="container">
+
+<div id="navigation">
+  <div id="logo_pane">
+    <a href="/">[ LifeWiki.net ]</a>
+  </div>
+  <& links.m &>
+  <& shortcuts.m &>
+</div>
+
+<div id="content_pane">
+
+  <div id="title_pane">
+    <h1><% $title %></h1>
+  </div>
+
+<div class="wiki">
+<% $content %>
+</div>
+
+<br class="clr" />
+
+<div id="footer">
+  <div id="footer-menu">
+    <a href="/index">Home</a> | 
+    <a href="http://daringfireball.net/projects/markdown/syntax" target="_new">Wiki Formatting Rules</a>
+  </div>
+  <div id="copyright">All content is copyright the original authors.</div>
+</div>
+
+</div>
+
+</body>
+</html>

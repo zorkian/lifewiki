@@ -60,7 +60,7 @@
 <form method="post" action="<% $page->getEditURI %>">
 Please edit the page below here:<br />
 
-<textarea name="content" rows="15" cols="80"><% $content %></textarea><br />
+<textarea name="content" rows="35" cols="80"><% $content %></textarea><br />
 
 <input type="submit" name="action:save" value="Save" />
 <input type="submit" name="action:preview" value="Preview" />

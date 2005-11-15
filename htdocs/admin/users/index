@@ -1,0 +1,13 @@
+<%perl>
+    $title = "Manage Users";
+</%perl>
+
+% if ($remote->can('admin_users')) {
+% }
+
+<div class='section'>
+<h2>Manage Users</h2>
+
+<p>Not implemented yet.</p>
+
+</div>

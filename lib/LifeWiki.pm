@@ -60,6 +60,12 @@ BEGIN {
             name => "Control a Page",
             desc => "Gives user access to delete a page and manage permissions for it.",
         },
+
+        admin_users => {
+            id => 8,
+            name => "Administrate User Accounts",
+            desc => "Provides the user with access to edit/control user accounts.",
+        },
     );
 }
 

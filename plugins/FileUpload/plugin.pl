@@ -33,6 +33,7 @@ sub init {
     LifeWiki::addHook('page_footer_extra', sub {
         my ($page, $remote) = @_;
         return unless $page && $remote;
+        return if $opts{allowed_namespaces} && ! $opts{allowed_namespaces}->{$page->getNamespaceId};
         return unless $page->isEditor($remote);
 
         # give people a link to attach things
@@ -43,6 +44,7 @@ sub init {
     LifeWiki::addHook('postparse_page_content', sub {
         my ($page, $contentref) = @_;
         return unless $contentref && $page;
+        return if $opts{allowed_namespaces} && ! $opts{allowed_namespaces}->{$page->getNamespaceId};
 
         # show people if things are attached
         my $files = LifeWiki::Plugin::FileUpload::File->getFilesOnPage($page);

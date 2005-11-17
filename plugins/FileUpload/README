@@ -1,0 +1,21 @@
+Lets users upload files.
+
+CREATE TABLE `fileattachments` (
+  `attachid` int(10) unsigned NOT NULL auto_increment,
+  `pgid` int(10) unsigned NOT NULL default '0',
+  `filename` varchar(255) NOT NULL default '',
+  `revnum` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`attachid`),
+  KEY `pgid` (`pgid`)
+);
+
+CREATE TABLE `fileattachmentscontent` (
+  `attachid` int(10) unsigned NOT NULL default '0',
+  `revnum` int(10) unsigned NOT NULL default '0',
+  `savetime` int(10) unsigned NOT NULL default '0',
+  `authorid` int(10) unsigned NOT NULL default '0',
+  `filesize` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`attachid`,`revnum`)
+);
+
+Plugin by Mark Smith; mark@plogs.net

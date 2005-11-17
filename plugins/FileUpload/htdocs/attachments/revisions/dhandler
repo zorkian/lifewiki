@@ -38,8 +38,8 @@
 
     print "<p>History for " . $file->getFilename . ".</p>";
     foreach my $revnum (1..$file->getRevNum) {
-        printf '<p>Revision #%d (<a href="%s"><strong>download</strong></a>)<br />',
-               $revnum, $file->getDownloadLink($revnum);
+        printf '<p>Revision #%d (<a href="%s"><strong>download</strong></a>, <a href="%s"><strong>view</strong></a>)<br />',
+               $revnum, $file->getDownloadLink($revnum), $file->getViewLink($revnum);
         my $au = LifeWiki::User->newFromUserid($file->getAuthorId($revnum));
         printf 'Uploaded by: %s on %s<br />',
                ($au ? $au->getLinkedNick : 'unknown author'), LifeWiki::mysql_time($file->getSaveTime($revnum));

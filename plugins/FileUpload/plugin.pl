@@ -72,8 +72,9 @@ sub init {
         foreach my $file (sort { lc $a->getFilename cmp lc $b->getFilename } @$files) {
             $out .= "<div class='bar'>";
             my $au = LifeWiki::User->newFromUserid($file->getAuthorId);
-            $out .= sprintf('<a href="%s"><strong>%s</strong></a> (%d bytes)<br />',
-                            $file->getDownloadLink, $file->getFilename, $file->getFilesize);
+            $out .= sprintf('<a href="%s"><strong>%s</strong></a> (%d bytes, <a href="%s">view file</a>)<br />',
+                            $file->getDownloadLink, $file->getFilename, $file->getFilesize,
+                            $file->getViewLink);
             $out .= sprintf('Revision #%d by %s dated %s.<br />', $file->getRevNum,
                             ($au ? $au->getLinkedNick : 'unknown author'),
                             LifeWiki::mysql_time($file->getSaveTime));

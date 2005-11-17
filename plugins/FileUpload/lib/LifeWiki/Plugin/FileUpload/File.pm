@@ -162,6 +162,15 @@ sub isValidRevNum {
     return $_[1] >= 1 && $_[1] <= $_[0]->{_revnum};
 }
 
+sub getViewLink {
+    my ($self, $rev) = @_;
+    unless ($rev) {
+        return "/attachments/view/$self->{_pgid}/$self->{_attachid}.$self->{_revnum}";
+    }
+    return undef unless $self->{_rev}->{$rev};
+    return "/attachments/view/$self->{_pgid}/$self->{_attachid}.$rev";
+}
+
 sub getDownloadLink {
     my ($self, $rev) = @_;
     unless ($rev) {

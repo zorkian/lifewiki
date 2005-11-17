@@ -222,4 +222,20 @@ sub deleteAttachment {
     return 1;
 }
 
+sub getContentType {
+    my $default = "application/octet-stream";
+
+    my $self = shift;
+    return $default unless $self;
+
+    my $types = $LifeWiki::Plugin::FileUpload::opts{mime_types};
+    return $default unless $types;
+
+    my $fn = lc $self->getFilename;
+    return $default unless $fn =~ /\.(.+?)$/;
+    my $ext = $1;
+
+    return $types->{$ext} || $default;
+}
+
 1;

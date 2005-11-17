@@ -29,6 +29,22 @@ sub init {
     print FILE time() . "\n";
     close FILE;
 
+    # load mime types
+    if ($opts{mime_types_from}) {
+        open FILE, "<$opts{mime_types_from}"
+            or die "Error: unable to open MIME file: $!\n";
+        $opts{mime_types} = {};
+        while (<FILE>) {
+            next unless /^(\w\S+?)((?:\s+\w+)+)\s*\r?\n$/;
+            my ($type, $exts) = ($1, $2);
+            my @exts = split /\s+/, $exts;
+            foreach my $ext (@exts) {
+                $opts{mime_types}->{$ext} = $type;
+            }
+        }
+        close FILE;
+    }
+
     # register some hooks
     LifeWiki::addHook('page_footer_extra', sub {
         my ($page, $remote) = @_;

@@ -160,6 +160,14 @@ sub getHookRef {
     return \%Hooks;
 }
 
+# also stolen from LJ
+sub eurl {
+    my $a = $_[0];
+    $a =~ s/([^a-zA-Z0-9_\,\-.\/\\\: ])/uc sprintf("%%%02x",ord($1))/eg;
+    $a =~ tr/ /+/;
+    return $a;
+}
+
 # shamelessly taken from LiveJournal.com source code
 sub ehtml {
     # fast path for the commmon case:

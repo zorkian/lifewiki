@@ -31,7 +31,6 @@
     <a href="/">[ LifeWiki.net ]</a>
   </div>
   <& links.m &>
-  <& shortcuts.m &>
 </div>
 
 <div id="content_pane">

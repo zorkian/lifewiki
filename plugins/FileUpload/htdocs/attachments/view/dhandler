@@ -37,7 +37,6 @@
 
     # serve it up ... FIXME: make this better :)
     $r->content_type($file->getContentType);
-    $r->header_out('Content-disposition' => "attachment; filename=\"" . $file->getFilename . '"');
     $m->print($file->getFileContents($revnum));
     return;
 

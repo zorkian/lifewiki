@@ -1,0 +1,48 @@
+<%init>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    my ($pgid, $attachid, $revnum) =
+        $arg =~ /^(\d+)\/(\d+)\.(\d+)/;
+    unless ($pgid && $attachid && $revnum) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page is invalid.</p>";
+        return;
+    }
+
+    unless ($page->isReader($remote)) {
+        $title = "Error";
+        print "<p>You do not have the proper access to download files attached to this page.</p>";
+        return;
+    }
+
+    # now get the actual file
+    my $file = LifeWiki::Plugin::FileUpload::File->newByAttachmentId($attachid);
+    unless ($file && $file->isValidRevNum($revnum) && $file->getPageId == $page->getPageId) {
+        $title = "Error";
+        print "<p>File attachment not found.</p>";
+        return;
+    }
+
+    # serve it up ... FIXME: make this better :)
+    $r->content_type('application/octet-stream');
+    $r->header_out('Content-disposition' => "attachment; filename=" . $file->getFilename);
+    $m->print($file->getFileContents($revnum));
+    return;
+
+</%init>
+
+<%flags>
+    inherit => undef,
+</%flags>

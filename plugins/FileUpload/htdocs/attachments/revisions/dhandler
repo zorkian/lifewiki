@@ -1,0 +1,48 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    my ($pgid, $attachid, $revnum) =
+        $arg =~ /^(\d+)\/(\d+)\.(\d+)/;
+    unless ($pgid && $attachid && $revnum) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page is invalid.</p>";
+        return;
+    }
+
+    my $file = LifeWiki::Plugin::FileUpload::File->newByAttachmentId($attachid);
+    unless ($file && $file->getPageId == $page->getPageId) {
+        $title = "Error";
+        print "<p>Invalid attachment information.</p>";
+        return;
+    }
+
+    unless ($page->isReader($remote)) {
+        $title = "Error";
+        print "<p>You do not have the proper access to read files attached to this page.</p>";
+        return;
+    }
+
+    $title = "Attachment History: " . $file->getFilename;
+
+    print "<p>History for " . $file->getFilename . ".</p>";
+    foreach my $revnum (1..$file->getRevNum) {
+        printf '<p>Revision #%d (<a href="%s"><strong>download</strong></a>)<br />',
+               $revnum, $file->getDownloadLink($revnum);
+        my $au = LifeWiki::User->newFromUserid($file->getAuthorId($revnum));
+        printf 'Uploaded by: %s on %s<br />',
+               ($au ? $au->getLinkedNick : 'unknown author'), LifeWiki::mysql_time($file->getSaveTime($revnum));
+        printf 'File size: %d bytes</p>', $file->getFilesize($revnum);
+    }
+</%perl>

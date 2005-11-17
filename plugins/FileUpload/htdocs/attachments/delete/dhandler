@@ -1,0 +1,50 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    my ($pgid, $attachid, $revnum) =
+        $arg =~ /^(\d+)\/(\d+)\.(\d+)/;
+    unless ($pgid && $attachid && $revnum) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page is invalid.</p>";
+        return;
+    }
+
+    unless ($page->isEditor($remote)) {
+        $title = "Error";
+        print "<p>You do not have the proper access to attach files to this page.</p>";
+        return;
+    }
+
+    my $file = LifeWiki::Plugin::FileUpload::File->newByAttachmentId($attachid);
+    unless ($file && $revnum == $file->getRevNum && $file->getPageId == $page->getPageId) {
+        $title = "Error";
+        print "<p>Invalid attachment or revision number.</p>";
+        return;
+    }
+
+    $title = "Delete Attachment: " . $file->getFilename;
+
+    my $out;
+    if ($did_post) {
+        $file->deleteAttachment;
+        print "<strong>Attachment has been deleted.</strong>";
+        return;
+    }
+</%perl>
+
+<form method="post" action="<% $file->getDeleteLink %>" enctype="multipart/form-data">
+<p>You are about to delete this attachment.  If this is okay, click the button.</p>
+<input type='submit' value='Permanently Delete Attachment' />
+</form>

@@ -1,0 +1,61 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg + 0;
+    unless ($arg) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page is invalid.</p>";
+        return;
+    }
+
+    unless ($page->isEditor($remote)) {
+        $title = "Error";
+        print "<p>You do not have the proper access to attach files to this page.</p>";
+        return;
+    }
+
+    $title = "Attach to Page: " . $page->getName;
+
+    my $out;
+    if ($did_post) {
+        foreach my $file ($r->upload) {
+            my $size = $file->size;
+            my $name = $file->filename;
+            
+            my $fh = $file->fh;
+            my $fc;
+            read $fh, $fc, $size;
+            next unless length $fc == $size;
+
+            my $fileobj = LifeWiki::Plugin::FileUpload::File->newUpload($page, $remote, $name, $fc);
+            next unless $fileobj;
+
+            $out .= "Uploaded: $name ($size bytes)\n";
+        }
+    }
+</%perl>
+
+% if ($out) {
+    <div style='border: solid 1px black; margin: 10px; padding: 10px;'>
+    <% $out %>
+    </div>
+% }
+
+<form method="post" action="/attachments/upload/<% $page->getPageId %>" enctype="multipart/form-data">
+<p>Please select a file to attach to this page.  You will be attaching a brand new
+file.  If you wish to upload a new version of an existing file, this is not the
+right place!</p>
+
+File: <input name="userfile" type="file" /> <input type='submit' value="Upload" />
+</form>

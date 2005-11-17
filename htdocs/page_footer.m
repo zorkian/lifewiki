@@ -1,13 +1,21 @@
 % return unless $page;
 % my $u = LifeWiki::User->newFromUserid($page->getAuthorId);
 
-<div style="background-color: #eee; width: 100%;">
+<div class='bar'>
 
 % if ($page->isEditor($remote)) {
 [<strong><a href="<% $page->getEditURI %>">Edit</a></strong>]
 % }
 
 [<strong><a href="<% $page->getDiffURI %>">Diff</a></strong>]
+
+<%perl>
+    my $vals = LifeWiki::runHooks('page_footer_extra', $page, $remote);
+    foreach my $row (@{$vals || []}) {
+        next unless $row;
+        print $row;
+    }
+</%perl>
 
 <em>
 % if ($u) {

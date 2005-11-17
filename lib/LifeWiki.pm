@@ -74,6 +74,10 @@ sub getDatabase {
     return $HTML::Mason::Commands::dbh;
 }
 
+sub getRemote {
+    return $HTML::Mason::Commands::remote;
+}
+
 sub printErrors {
     return unless @Errors;
 
@@ -171,8 +175,20 @@ sub ehtml {
     return $a;
 }
 
+sub addLibraryPath {
+    my $root = shift;
+    die "Root not specified to addLibraryPath\n" unless $root;
+
+    $root = "$ENV{LIFEWIKIHOME}/$root";
+    die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
+
+    push @INC, $root;
+}
+
 sub addComponentRoot {
     my $root = shift;
+    die "Root not specified to addComponentRoot\n" unless $root;
+
     $root = "$ENV{LIFEWIKIHOME}/$root";
     die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
 
@@ -181,6 +197,8 @@ sub addComponentRoot {
 
 sub addImageDir {
     my ($uri, $path) = @_;
+    die "Path not specified to addImageDir\n" unless $path;
+
     my $root = "$ENV{LIFEWIKIHOME}/$path";
     die "Root '$root' doesn't exist or is not a directory\n" unless -d $root;
     die "Image path '$uri' not in proper format '/images/FOO'\n"

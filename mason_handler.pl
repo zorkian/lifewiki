@@ -40,13 +40,16 @@ use Apache::Request;
         } else {
             $name = $plugin;
         }
+        next if $LifeWiki::PLUGIN_LOADED{$name};
 
         my $path = "$ENV{LIFEWIKIHOME}/plugins/$name";
         die "Plugin directory $path does not exist or is not a directory\n" unless -d $path;
 
         eval "require '$path/plugin.pl';";
-        my $rv = eval "return LifeWiki::Plugin::${name}::init(\$opts);";
+        my $rv = eval "return LifeWiki::Plugin::${name}::init(\$opts);" || "";
         die "Plugin $name failed to return 1 ($rv) from init(): $@\n" unless $rv;
+
+        $LifeWiki::PLUGIN_LOADED{$name} = 1;
     }
 
     # now setup the httpd.conf

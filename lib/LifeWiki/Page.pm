@@ -310,8 +310,13 @@ sub getOutputContent {
     my $self = shift;
     my $remote = shift;
     my $revnum = shift;
+    return unless $self;
 
     my ($authorid, $content, $revtime) = $self->getContent($revnum);
+
+    # let hooks preparse the content
+    my $rv = LifeWiki::runHook('preparse_page_content', $self, \$content);
+    goto POSTPARSE if defined $rv && $rv;
 
     # escape HTML first
 #$content = LifeWiki::ehtml($content);
@@ -363,10 +368,6 @@ sub getOutputContent {
     my (%open, $out, $extra);
     my %ac = map { $_ => 1 } qw(hr br img input); # auto-close
     my %nli = map { $_ => 1 } qw(a); # do not linkify while open
-
-    # let hooks preparse the content
-    my $rv = LifeWiki::runHook('preparse_page_content', \$content);
-    goto POSTPARSE if defined $rv && $rv;
 
     # turn the content into markdown HTML first
     $content = Markdown::Markdown($content);
@@ -420,13 +421,14 @@ sub getOutputContent {
         $extra .= "</p>\n\n";
     }
 
-    # now call the postparse hook
 POSTPARSE:
-    LifeWiki::runHook('postparse_page_content', \$content);
+    # now call the postparse hook
+    my $cur = $out || $content;
+    LifeWiki::runHook('postparse_page_content', $self, \$cur);
 
     # return; must use $out first, but fall back to $content in case the preparse made
     # us skip down to here
-    return ($authorid, $extra . ($out || $content), $revtime);
+    return ($authorid, $extra . $cur, $revtime);
 }
 
 sub setContent {
@@ -472,6 +474,17 @@ sub isEditor {
 
     return 0 unless $remote;
     return _canEditNamespace($remote, $self->{_nmid});
+}
+
+sub isReader {
+    my $self = shift;
+    my $remote = shift;
+
+    my $rv = LifeWiki::runHook('is_reader', $self, $remote);
+    return $rv if defined $rv;
+
+    return 0 unless $remote;
+    return _canReadNamespace($remote, $self->{_nmid});
 }
 
 # FIXME: I would like this function to be called allocateNamespace or something

@@ -14,7 +14,7 @@ instantiated_page
 
 preparse_page_content
 postparse_page_content
-    SINGLE ($contentref): boolean
+    SINGLE ($page, $contentref): boolean
     Called with a reference to the content of the page.  The 'preparse' version
     is called before any Markdown/etc transformations are done.  If you return
     a true value, we skip all parsing/formatting.  I.e., return 1 to stop
@@ -32,6 +32,14 @@ page_content_changed
     database.  Not much you can do about anything, this is more just a note
     to say "hey, this has changed."
 
+is_reader
+    SINGLE ($page, $remote): boolean
+    Called when we're seeing if $remote is allowed to view the contents of
+    $page.  This is the highest level call, and normally just depends on what
+    namespace the page is in.  (See can_read_namespace hook.)  If you return
+    a defined value, that value is used to determine if $remote is a reader
+    of $page.
+    
 is_editor
     SINGLE ($page, $remote): boolean
     Called when we're seeing if $remote is allowed to edit the content of
@@ -93,3 +101,7 @@ get_access_list
     return an arrayref in order to stop the normal database work of accessing
     the privilege list.
 
+page_footer_extra
+    MULTIPLE ($page, $remote): string
+    If you wish to insert extra links/text into the page footer, you can go
+    ahead and return it as a string and it will be inserted into the footer.

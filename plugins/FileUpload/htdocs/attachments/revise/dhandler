@@ -1,0 +1,73 @@
+<%perl>
+    unless ($remote) {
+        $title = "Error";
+        print "<p>You must be logged into use this page.</p>";
+        return;
+    }
+
+    my $arg = $m->dhandler_arg;
+    my ($pgid, $attachid, $revnum) =
+        $arg =~ /^(\d+)\/(\d+)\.(\d+)/;
+    unless ($pgid && $attachid && $revnum) {
+        $title = "Error";
+        print "<p>You have reached this page in an invalid way.</p>";
+        return;
+    }
+
+    $page = LifeWiki::Page->newByPageId($arg);
+    unless ($page) {
+        $title = "Error";
+        print "<p>That page is invalid.</p>";
+        return;
+    }
+
+    unless ($page->isEditor($remote)) {
+        $title = "Error";
+        print "<p>You do not have the proper access to attach files to this page.</p>";
+        return;
+    }
+
+    my $fileobj = LifeWiki::Plugin::FileUpload::File->newByAttachmentId($attachid);
+    unless ($fileobj && $revnum == $fileobj->getRevNum && $fileobj->getPageId == $page->getPageId) {
+        $title = "Error";
+        print "<p>Invalid attachment or revision number.</p>";
+        return;
+    }
+
+    $title = "Update Attachment on Page: " . $page->getName;
+
+    my $out;
+    if ($did_post) {
+        foreach my $file ($r->upload) {
+            my $size = $file->size;
+            my $name = $file->filename;
+            
+            my $fh = $file->fh;
+            my $fc;
+            read $fh, $fc, $size;
+            next unless length $fc == $size;
+
+            my $rv = $fileobj->uploadRevision($remote, $fc);
+            if ($rv) {
+                my $rev = $rv->getRevNum;
+                $fileobj = $rv;
+                $out .= "Uploaded: $name ($size bytes, revision $rev)\n";
+            } else {
+                $out .= "Failed to upload the file for some reason!\n";
+            }
+        }
+    }
+</%perl>
+
+% if ($out) {
+    <div style='border: solid 1px black; margin: 10px; padding: 10px;'>
+    <% $out %>
+    </div>
+% }
+
+<form method="post" action="<% $fileobj->getReviseLink %>" enctype="multipart/form-data">
+<p><b>You are uploading a NEW VERSION of <% $fileobj->getFilename %>.</b>  Please select
+the file you wish to replace the old version with.</p>
+
+File: <input name="userfile" type="file" /> <input type='submit' value="Upload" />
+</form>

@@ -66,6 +66,18 @@ BEGIN {
             name => "Administrate User Accounts",
             desc => "Provides the user with access to edit/control user accounts.",
         },
+
+        admin_style => {
+            id => 9,
+            name => "Administrate a Style",
+            desc => "Provides the user with access to edit/control a certain style.",
+        },
+
+        create_styles => {
+            id => 10,
+            name => "Create Styles",
+            desc => "Allows the user to create new styles for their namespaces.",
+        },
     );
 }
 

@@ -26,6 +26,7 @@ use Apache::Request;
     use LifeWiki;
     use LifeWiki::User;
     use LifeWiki::Page;
+    use LifeWiki::Style;
     use LifeWiki::Namespace;
 
     # require the markdown library

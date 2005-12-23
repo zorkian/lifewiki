@@ -3,6 +3,7 @@
 <p>Here are the various administrative pages you can visit.</p>
 
 <ul>
-<li><a href="/admin/namespaces">Admin Namespaces</a></li>
-<li><a href="/admin/users">Admin Users</a></li>
+<li><a href="/admin/namespaces/">Admin Namespaces</a></li>
+<li><a href="/admin/styles/">Admin Styles</a></li>
+<li><a href="/admin/users/">Admin Users</a></li>
 </ul>

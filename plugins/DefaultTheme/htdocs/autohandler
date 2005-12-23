@@ -1,8 +1,11 @@
-<%init>
+<%perl>
+    # if this namespace is going to be taking over the display...
+#if (
+
     # call ourselves
     my $url = $r->uri;
     my $content = $m->scomp($m->fetch_next);
-</%init>
+</%perl>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
 
@@ -17,9 +20,6 @@
   <!-- /end -->
 
   <link rel="stylesheet" type="text/css" href="<% $LifeWiki::THEMEROOT %>/theme.css" />
-
-  <link rel="shortcut icon" href="" />
-  <link rel="start" href="index" title="Home" />
 
 </head>
 <body>

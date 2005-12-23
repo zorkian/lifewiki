@@ -23,6 +23,7 @@ CREATE TABLE `namespace` (
   `frontpage` tinyint(4) NOT NULL default '0',
   `readsec` enum('public','secure') NOT NULL default 'public',
   `writesec` enum('public','secure') NOT NULL default 'public',
+  `styleid` int(10) unsigned default NULL,
   PRIMARY KEY  (`nmid`,`name`),
   KEY `name` (`name`),
   KEY `frontpage` (`frontpage`)
@@ -102,4 +103,13 @@ CREATE TABLE `externalusers` (
   `userid` int(11) NOT NULL default '0',
   PRIMARY KEY  (`extfrom`),
   KEY `userid` (`userid`)
+) TYPE=MyISAM;
+
+CREATE TABLE `style` (
+  `styleid` int(10) unsigned NOT NULL auto_increment,
+  `ownerid` int(10) unsigned NOT NULL default '0',
+  `name` varchar(255) NOT NULL default '',
+  `content` text,
+  PRIMARY KEY  (`styleid`),
+  KEY `ownerid` (`ownerid`)
 ) TYPE=MyISAM;

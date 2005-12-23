@@ -13,8 +13,8 @@ sub newById {
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    my ($name, $desc, $ownerid, $readsec, $writesec, $frontpage) =
-        $dbh->selectrow_array('SELECT name, description, ownerid, readsec, writesec, frontpage FROM namespace WHERE nmid = ?',
+    my ($name, $desc, $ownerid, $readsec, $writesec, $frontpage, $styleid) =
+        $dbh->selectrow_array('SELECT name, description, ownerid, readsec, writesec, frontpage, styleid FROM namespace WHERE nmid = ?',
                               undef, $nmid);
     return undef if $dbh->err;
     return undef unless $name;
@@ -27,6 +27,7 @@ sub newById {
         _readsec => $readsec,
         _writesec => $writesec,
         _frontpage => $frontpage,
+        _styleid => $styleid,
     };
     bless $self, $class;
 
@@ -42,8 +43,8 @@ sub newByName {
     my $dbh = LifeWiki::getDatabase();
     return undef unless $dbh;
 
-    my ($nmid, $desc, $ownerid, $readsec, $writesec, $frontpage) =
-        $dbh->selectrow_array('SELECT nmid, description, ownerid, readsec, writesec, frontpage FROM namespace WHERE name = ?',
+    my ($nmid, $desc, $ownerid, $readsec, $writesec, $frontpage, $styleid) =
+        $dbh->selectrow_array('SELECT nmid, description, ownerid, readsec, writesec, frontpage, styleid FROM namespace WHERE name = ?',
                               undef, $name);
     return undef if $dbh->err;
     return undef unless $nmid;
@@ -56,6 +57,7 @@ sub newByName {
         _readsec => $readsec,
         _writesec => $writesec,
         _frontpage => $frontpage,
+        _styleid => $styleid,
     };
     bless $self, $class;
 
@@ -87,13 +89,13 @@ sub getFrontpage {
     return () unless $dbh;
 
     my $rows = $dbh->selectall_arrayref
-        ('SELECT nmid, name, description, ownerid, readsec, writesec FROM namespace ' .
+        ('SELECT nmid, name, description, ownerid, readsec, writesec, styleid FROM namespace ' .
          'WHERE frontpage = 1 ORDER BY description');
     return () if $dbh->err;
 
     my @res;
     foreach my $row (@$rows) {
-        my ($nmid, $name, $desc, $ownerid, $readsec, $writesec) = @$row;
+        my ($nmid, $name, $desc, $ownerid, $readsec, $writesec, $styleid) = @$row;
         my $self = {
             _nmid => $nmid,
             _name => $name,
@@ -101,6 +103,7 @@ sub getFrontpage {
             _ownerid => $ownerid,
             _readsec => $readsec,
             _writesec => $writesec,
+            _styleid => $styleid,
             _frontpage => 1,
         };
         bless $self, 'LifeWiki::Namespace';
@@ -129,6 +132,25 @@ sub createNew {
     $owner->grant('admin_namespace', $nmid);
 
     return LifeWiki::Namespace->newById($nmid);
+}
+
+sub getStyleId {
+    my $self = shift;
+    return $self->{_styleid}+0;
+}
+
+sub setStyleId {
+    my $self = shift;
+    my $arg = shift() + 0;
+    return $arg if $arg == $self->{_styleid};
+
+    my $dbh = LifeWiki::getDatabase();
+    return undef unless $dbh;
+
+    $dbh->do("UPDATE namespace SET styleid = ? WHERE nmid = ?",
+             undef, $arg, $self->{_nmid});
+    return undef if $dbh->err;
+    return $self->{_styleid} = $arg;
 }
 
 sub isFrontpage {

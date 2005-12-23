@@ -137,4 +137,35 @@ sub setContent {
     return $self->{_content} = $arg;
 }
 
+sub getRenderedPage {
+    my $self = shift;
+    my ($remote, $page, $title, $footer, $article) = @_;
+    return unless $page && $article;
+
+    my $content = $self->getContent;
+    return unless $content;
+
+    # process a particular tag of content
+    my $proctag = sub {
+        my $t = lc shift();
+        if ($t eq 'title') {
+            return $title;
+        } elsif ($t eq 'footer') {
+            return $footer;
+        } elsif ($t eq 'article') {
+            return $article;
+        } else {
+            # uppercase is prettier for printing
+            $t = uc $t;
+            return "<strong>[Unknown Tag $t]</strong>";
+        }
+    };
+
+    # basically we want to take the style and render this wiki page into it
+    1 while $content =~ s!<\$LW(\w+)>!$proctag->($1)!meg;
+
+    # and return it :)
+    return $content;
+}
+
 1;

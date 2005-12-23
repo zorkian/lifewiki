@@ -1,10 +1,13 @@
 <%perl>
-    # if this namespace is going to be taking over the display...
-#if (
-
     # call ourselves
     my $url = $r->uri;
     my $content = $m->scomp($m->fetch_next);
+
+    # now, if whatever we were doing said to skip our printing...
+    if ($skipTheme) {
+        print $content;
+        return;
+    }
 </%perl>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">

@@ -102,7 +102,7 @@ my $ah = HTML::Mason::ApacheHandler->new(
     autohandler_name    => 'autohandler',
     dhandler_name       => 'dhandler',
     error_mode          => 'output',
-    allow_globals       => [qw/ %opts $dbh $remote %cookies $head $title $page $did_post /],
+    allow_globals       => [qw/ %opts $dbh $remote %cookies $head $title $page $did_post $skipTheme /],
     autoflush           => 0,
     code_cache_max_size => 10485760,
     static_source       => 0,
@@ -124,6 +124,7 @@ sub handler
     $HTML::Mason::Commands::title = "boring lack of a title";
     $HTML::Mason::Commands::page = undef;
     $HTML::Mason::Commands::head = "";
+    $HTML::Mason::Commands::skipTheme = 0;
 
     # lifewiki engine setup
     LifeWiki::clearErrors();

@@ -39,7 +39,24 @@
     # calculate the page footer
     my $val = $m->scomp('/page_footer.m');
 
-    # footer, content, footer
+    # at this point we have a page, and we're not editing it
+    my $nm = LifeWiki::Namespace->newById($page->getNamespaceId);
+    if ($nm && $nm->getStyleId) {
+        my $style = LifeWiki::Style->newById($nm->getStyleId);
+        if ($style) {
+            # custom style, so let's render that instead
+            my $pagetext = $style->getRenderedPage($remote, $page, $title, $val, $content);
+            if ($pagetext) {
+                $skipTheme = 1;
+                print $pagetext;
+                return;
+            }
+        }
+    }
+
+    # default is to print footer, content, footer and then slam it into the autohandler
+    # which sticks it in as part of the default site theme, but we may have already been
+    # usurped by the above style code
     print "$val$content$val";
 
 </%init>

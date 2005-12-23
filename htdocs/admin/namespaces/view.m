@@ -16,12 +16,26 @@
     $title = $nm->getName;
     my $u = LifeWiki::User->newFromUserid($nm->getOwnerId);
 
+    # assemble a list of styles this user can use
+    my @styleids = $u->getAccessList('admin_style');
+    my @styles;
+    foreach my $sid (@styleids) {
+        my $style = LifeWiki::Style->newById($sid);
+        next unless $style;
+
+        push @styles, [ $sid, $style->getName ];
+    }
+    @styles = sort { $a->[1] cmp $b->[1] } @styles;
+    push @styles, [ 0, '---' ], [ 0, "Site Default / No Custom Theme" ];
+
+    # other information we need
     my $isadmin = $remote->can('admin_namespace', $nm->getNamespaceId);
     my $cansetfp = $remote->can('create_namespaces');
     my $frontpage = $nm->isFrontpage;
     my $desc = $nm->getDescription;
     my $readsec = $nm->getReadSecurity;
     my $writesec = $nm->getWriteSecurity;
+    my $styleid = $nm->getStyleId;
 </%perl>
 
 <div class='section'><h2>Namespace Information</h2>
@@ -35,6 +49,13 @@
 <tr><td><b>Description:</b></td><td>
 <input type='text' name='description' value='<% $desc %>' <% $isadmin ? '' : 'disabled="disabled"' %> maxlength='60' />
 </td></tr>
+
+<tr><td><b>Custom Theme:</b></td><td>
+<select name="styleid" <% $isadmin ? '' : 'disabled="disabled"' %>>
+% foreach my $row (@styles) {
+<option value="<% $row->[0] %>" <% $styleid == $row->[0] ? 'selected' : '' %>><% $row->[1] %></option>
+% }
+</select></td></tr>
 
 <tr><td><b>Front Page:</b></td><td>
 <input type='checkbox' name='frontpage' value='1' <% $frontpage ? 'checked' : '' %><% $cansetfp ? '' : 'disabled="disabled"' %> />

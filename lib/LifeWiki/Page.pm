@@ -315,7 +315,7 @@ sub getOutputContent {
     my ($authorid, $content, $revtime) = $self->getContent($revnum);
 
     # let hooks preparse the content
-    my $rv = LifeWiki::runHook('preparse_page_content', $self, \$content);
+    my $rv = LifeWiki::runHook('preparse_page_content', $self, \$content, $remote);
     goto POSTPARSE if defined $rv && $rv;
 
     # escape HTML first
@@ -424,7 +424,7 @@ sub getOutputContent {
 POSTPARSE:
     # now call the postparse hook
     my $cur = $out || $content;
-    LifeWiki::runHook('postparse_page_content', $self, \$cur);
+    LifeWiki::runHook('postparse_page_content', $self, \$cur, $remote);
 
     # return; must use $out first, but fall back to $content in case the preparse made
     # us skip down to here

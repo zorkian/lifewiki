@@ -58,7 +58,7 @@ sub init {
 
     # and now add information about a page content
     LifeWiki::addHook('postparse_page_content', sub {
-        my ($page, $contentref) = @_;
+        my ($page, $contentref, $remote) = @_;
         return unless $contentref && $page;
         return if $opts{allowed_namespaces} && ! $opts{allowed_namespaces}->{$page->getNamespaceId};
 
@@ -78,12 +78,14 @@ sub init {
             $out .= sprintf('Revision #%d by %s dated %s.<br />', $file->getRevNum,
                             ($au ? $au->getLinkedNick : 'unknown author'),
                             LifeWiki::mysql_time($file->getSaveTime));
-            if ($page->isEditor(LifeWiki::getRemote())) {
+            if ($page->isEditor($remote)) {
                 $out .= sprintf('[<a href="%s"><strong>Update</strong></a>] [<a href="%s"><strong>Delete</strong></a>] ',
                                 $file->getReviseLink, $file->getDeleteLink);
             }
-            $out .= sprintf('[<a href="%s"><strong>History</strong></a>]',
-                            $file->getRevisionsLink);
+            if ($remote) {
+                $out .= sprintf('[<a href="%s"><strong>History</strong></a>]',
+                                $file->getRevisionsLink);
+            }
             $out .= "</div>";
         }
 

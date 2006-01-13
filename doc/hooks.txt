@@ -14,7 +14,7 @@ instantiated_page
 
 preparse_page_content
 postparse_page_content
-    SINGLE ($page, $contentref): boolean
+    SINGLE ($page, $contentref, $remote): boolean
     Called with a reference to the content of the page.  The 'preparse' version
     is called before any Markdown/etc transformations are done.  If you return
     a true value, we skip all parsing/formatting.  I.e., return 1 to stop

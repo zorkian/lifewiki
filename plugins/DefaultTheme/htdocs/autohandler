@@ -3,6 +3,20 @@
     my $url = $r->uri;
     my $content = $m->scomp($m->fetch_next);
 
+    # now, see if they actually were a page page and we can fudge ourselves into a theme
+    if ($page && ! $skipTheme) {
+        my $nm = LifeWiki::Namespace->newById($page->getNamespaceId);
+        if ($nm && $nm->getStyleId) {
+            my $style = LifeWiki::Style->newById($nm->getStyleId);
+            if ($style) {
+                # custom style, so let's render that instead
+                my $val = $m->scomp('/standard_footer.m');
+                $content = $style->getRenderedPage($remote, $page, $title, $val, $content);
+                $skipTheme = 1;
+            }
+        }
+    }
+
     # now, if whatever we were doing said to skip our printing...
     if ($skipTheme) {
         print $content;

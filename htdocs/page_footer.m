@@ -3,11 +3,17 @@
 
 <div class='bar'>
 
+% unless ($remote) {
+[<strong><a href="/login">Login</a></strong>]
+% }
+
 % if ($page->isEditor($remote)) {
 [<strong><a href="<% $page->getEditURI %>">Edit</a></strong>]
 % }
 
+% if ($remote) {
 [<strong><a href="<% $page->getDiffURI %>">Diff</a></strong>]
+% }
 
 <%perl>
     my $vals = LifeWiki::runHooks('page_footer_extra', $page, $remote);

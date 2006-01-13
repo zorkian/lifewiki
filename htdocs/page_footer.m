@@ -4,7 +4,7 @@
 <div class='bar'>
 
 % unless ($remote) {
-[<strong><a href="/login">Login</a></strong>]
+[<strong><a href="/login?to=<% $page->getURI %>">Login</a></strong>]
 % }
 
 % if ($page->isEditor($remote)) {

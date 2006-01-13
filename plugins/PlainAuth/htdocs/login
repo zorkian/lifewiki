@@ -5,9 +5,9 @@
         return;
     }
 
-    if ($did_post) {
-        my $args = $m->request_args;
+    my $args = $m->request_args;
 
+    if ($did_post) {
         my $u = LifeWiki::User->newFromUser($args->{username});
         unless ($u) {
             print "<p>Username or password mismatch.</p>";
@@ -32,6 +32,11 @@
         # set our remote for the duration of this transaction
         $remote = $u;
 
+        # if they want to return
+        if (my $uri = $args->{to}) {
+            return $m->redirect("$LifeWiki::SITEROOT/$uri");
+        }
+
         print "<p>You have been successfully logged in.</p>";
         return;
     }
@@ -41,6 +46,7 @@
 <p>In order to login to this site, please fill out this form.</p>
 
 <form method="post" action="/login">
+<input type="hidden" name="to" value="<% $args->{to} %>" />
 <table>
 <tr><td>Username:</td><td><input type="text" name="username"></td></tr>
 <tr><td>Password:</td><td><input type="password" name="password"></td></tr>

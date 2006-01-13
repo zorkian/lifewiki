@@ -351,7 +351,7 @@ sub getOutputContent {
         my $pop = sub { return $linkify->(@{ shift @$links }); };
 
         my @temp1; $links = \@temp1;
-        $content =~ s/(^|.)(\{(?:(\w[\w\_\-]*):)?(\w*)(?:\s+([^\]]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5, 1)/ges;
+        $content =~ s/(^|.)(\{(?:(\w[\w\_\-]*):)?(\w*)(?:\s+([\w \.\,\!\?\:\'\"\<\>\[\]\{]+?))?\})/$push->('<temp1>', $1, $2, $3, $4, $5, 1)/ges;
 
         my @temp2; $links = \@temp2;
         $content =~ s/(^|.)((?:(\w[\w\_\-]*):)?(\w*[A-Z]\w*[A-Z]\w*))\b/$push->('<temp2>', $1, $2, $3, $4)/ges;

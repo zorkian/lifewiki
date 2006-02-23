@@ -71,28 +71,19 @@ sub init {
         my $out;
         foreach my $file (sort { lc $a->getFilename cmp lc $b->getFilename } @$files) {
             $out .= "<div class='bar'>";
-            if ($remote) {
-                # logged in people
-                $out .= sprintf('<a href="%s"><strong>%s</strong></a> (%d bytes, <a href="%s">view file</a>)<br />',
-                                $file->getDownloadLink, $file->getFilename, $file->getFilesize,
-                                $file->getViewLink);
-            } else {
-                # non-logged in user
-                $out .= sprintf('<strong>%s</strong> (%d bytes, log in to download or view)<br />',
-                                $file->getFilename, $file->getFilesize);
-            }
+            $out .= sprintf('<a href="%s"><strong>%s</strong></a> (%d bytes, <a href="%s">view file</a>)<br />',
+                            $file->getDownloadLink, $file->getFilename, $file->getFilesize,
+                            $file->getViewLink);
             my $au = LifeWiki::User->newFromUserid($file->getAuthorId);
             $out .= sprintf('Revision #%d by %s dated %s.<br />', $file->getRevNum,
                             ($au ? $au->getLinkedNick : 'unknown author'),
                             LifeWiki::mysql_time($file->getSaveTime));
-            if ($remote) {
-                if ($page->isEditor($remote)) {
-                    $out .= sprintf('[<a href="%s"><strong>Update</strong></a>] [<a href="%s"><strong>Delete</strong></a>] ',
-                                    $file->getReviseLink, $file->getDeleteLink);
-                }
-                $out .= sprintf('[<a href="%s"><strong>History</strong></a>]',
-                                $file->getRevisionsLink);
+            if ($page->isEditor($remote)) {
+                $out .= sprintf('[<a href="%s"><strong>Update</strong></a>] [<a href="%s"><strong>Delete</strong></a>] ',
+                                $file->getReviseLink, $file->getDeleteLink);
             }
+            $out .= sprintf('[<a href="%s"><strong>History</strong></a>]',
+                            $file->getRevisionsLink);
             $out .= "</div>";
         }
 

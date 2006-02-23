@@ -24,7 +24,8 @@ sub _getNamespaceId {
 
 sub _canEditNamespace {
     my ($remote, $nmid) = @_;
-    return undef unless $remote && $nmid;
+    return undef unless $nmid;
+    return 0 unless $remote;
 
     my $rv = LifeWiki::runHook('can_edit_namespace', $remote, $nmid);
     return $rv if defined $rv;
@@ -58,6 +59,7 @@ sub _canReadNamespace {
         $LifeWiki::CACHE_NMID_READSEC{$nmid} ||=
             $dbh->selectrow_array('SELECT readsec FROM namespace WHERE nmid = ?', undef, $nmid);
     return 1 if $readlevel eq 'public';
+    return 0 unless $remote;
 
     # do you have access anyway?
     return undef unless $remote;
@@ -472,7 +474,6 @@ sub isEditor {
     my $rv = LifeWiki::runHook('is_editor', $self, $remote);
     return $rv if defined $rv;
 
-    return 0 unless $remote;
     return _canEditNamespace($remote, $self->{_nmid});
 }
 
@@ -483,7 +484,6 @@ sub isReader {
     my $rv = LifeWiki::runHook('is_reader', $self, $remote);
     return $rv if defined $rv;
 
-    return 0 unless $remote;
     return _canReadNamespace($remote, $self->{_nmid});
 }
 

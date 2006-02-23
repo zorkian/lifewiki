@@ -1,9 +1,4 @@
 <%perl>
-    unless ($remote) {
-        $title = "Error";
-        print "<p>You must be logged into use this page.</p>";
-        return;
-    }
 
     my $arg = $m->dhandler_arg;
     my ($pgid, $attachid, $revnum) =
@@ -45,4 +40,5 @@
                ($au ? $au->getLinkedNick : 'unknown author'), LifeWiki::mysql_time($file->getSaveTime($revnum));
         printf 'File size: %d bytes</p>', $file->getFilesize($revnum);
     }
+
 </%perl>

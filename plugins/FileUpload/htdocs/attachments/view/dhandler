@@ -1,9 +1,4 @@
 <%init>
-    unless ($remote) {
-        $title = "Error";
-        print "<p>You must be logged into use this page.</p>";
-        return;
-    }
 
     my $arg = $m->dhandler_arg;
     my ($pgid, $attachid, $revnum) =

@@ -75,9 +75,15 @@ sub init {
     return 1;
 }
 
+# ( $args, $assoc )
+# args from the post, assoc whether or not we're doing an association
 sub getVerifyRedirectURL {
     my $args = shift;
-    my $extra = "?assoc=1" if shift;
+
+    my $extra = "";
+    $extra = "?assoc=1" if shift;
+    $extra .= ($extra ? '&' : '?') . 'to=' . $args->{'to'}
+        if $args->{'to'};
 
     my $csr = Net::OpenID::Consumer->new( consumer_secret => $opts{consumer_secret} );
     return LifeWiki::error('unable to create Net::OpenID::Consumer object')

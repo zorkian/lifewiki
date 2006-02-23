@@ -1,5 +1,11 @@
 <%init>
 
+    my $args = $m->request_args;
+    my $to = $args->{to} || "";
+    if ($to) {
+        $page = LifeWiki::Page->new($remote, $to, '', 0);
+    }
+
     $title = "Login";
     if ($remote) {
         print "<p>You are already logged in.</p>";
@@ -9,7 +15,6 @@
     if ($did_post) {
         # simply pass it along
         my $verify = sub {
-            my $args = $m->request_args;
             my $url = LifeWiki::Plugin::OpenIDConsumer::getVerifyRedirectURL($args);
             return LifeWiki::error('unable to determine OpenID verification URL')
                 unless $url;
@@ -26,10 +31,15 @@
 % LifeWiki::printErrors();
 
 <form method="post" action="/login">
+<input type='hidden' name='to' value='<% $to %>' />
 <table>
 <tr><td>Identity URL:</td><td><input type='text' name='openid_url' id='openid_url' /></td></tr>
 <tr><td></td><td><input type="submit" value="Login via OpenID"></td></tr>
 </table>
 </form>
 
-<p>Your Identity URL is provided by your OpenID server.  This may be your blog URL, for example.</p>
+<p>Your Identity URL is provided by your OpenID server.  This may be your blog URL, profile URL, or other URL that
+points somewhere that identifies you.</p>
+
+<p>If you do not have an OpenID Identity, you can easily get one by creating
+an account on <a href="http://www.myopenid.com/">MyOpenID</a> or <a href="http://www.videntity.org/">Videntity.org</a>.</p>

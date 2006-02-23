@@ -54,6 +54,12 @@
             # ghetto?
             $remote = $u;
 
+            # return a redirect?
+            if ($args->{to}) {
+                $m->redirect("$LifeWiki::SITEROOT/$args->{to}");
+                return 1;
+            }
+
             # redirect to preferences page
             unless ($u->getUsername) {
                 $m->redirect("$LifeWiki::SITEROOT/prefs");
